@@ -9,8 +9,8 @@ import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
 
-import ru.mai.lessons.rpks.jooq.model.tables.FilterRules;
-import ru.mai.lessons.rpks.jooq.model.tables.records.FilterRulesRecord;
+import ru.mai.lessons.rpks.jooq.model.tables.DeduplicationRules;
+import ru.mai.lessons.rpks.jooq.model.tables.records.DeduplicationRulesRecord;
 
 
 /**
@@ -24,5 +24,5 @@ public class Keys {
     // UNIQUE and PRIMARY KEY definitions
     // -------------------------------------------------------------------------
 
-    public static final UniqueKey<FilterRulesRecord> FILTER_RULES_PKEY = Internal.createUniqueKey(FilterRules.FILTER_RULES, DSL.name("filter_rules_pkey"), new TableField[] { FilterRules.FILTER_RULES.ID }, true);
+    public static final UniqueKey<DeduplicationRulesRecord> DEDUPLICATION_RULES_PKEY = Internal.createUniqueKey(DeduplicationRules.DEDUPLICATION_RULES, DSL.name("deduplication_rules_pkey"), new TableField[] { DeduplicationRules.DEDUPLICATION_RULES.ID }, true);
 }

@@ -48,7 +48,7 @@ public final class DbReaderImpl implements DbReader {
             DSLContext dslContext = DSL.using(connection, SQLDialect.POSTGRES);
             return dslContext
                     .select()
-                    .from(Tables.FILTER_RULES)
+                    .from(Tables.DEDUPLICATION_RULES)
                     .fetchInto(Rule.class)
                     .toArray(Rule[]::new);
         }

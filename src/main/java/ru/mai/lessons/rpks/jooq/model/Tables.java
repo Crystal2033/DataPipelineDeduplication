@@ -4,7 +4,7 @@
 package ru.mai.lessons.rpks.jooq.model;
 
 
-import ru.mai.lessons.rpks.jooq.model.tables.FilterRules;
+import ru.mai.lessons.rpks.jooq.model.tables.DeduplicationRules;
 
 
 /**
@@ -14,7 +14,7 @@ import ru.mai.lessons.rpks.jooq.model.tables.FilterRules;
 public class Tables {
 
     /**
-     * The table <code>public.filter_rules</code>.
+     * The table <code>public.deduplication_rules</code>.
      */
-    public static final FilterRules FILTER_RULES = FilterRules.FILTER_RULES;
+    public static final DeduplicationRules DEDUPLICATION_RULES = DeduplicationRules.DEDUPLICATION_RULES;
 }

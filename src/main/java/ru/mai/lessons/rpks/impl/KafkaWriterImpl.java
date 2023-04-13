@@ -40,12 +40,12 @@ public final class KafkaWriterImpl implements KafkaWriter {
     }
 
     private void send(Message message) {
-        if (!this.isInitialized) {
+        if (!isInitialized) {
             init();
         }
 
         Future<RecordMetadata> response;
-        response = this.kafkaProducer.send(new ProducerRecord<>(topic, message.getValue()));
+        response = kafkaProducer.send(new ProducerRecord<>(topic, message.getValue()));
 
         Optional.ofNullable(response).ifPresent(rsp -> {
             try {

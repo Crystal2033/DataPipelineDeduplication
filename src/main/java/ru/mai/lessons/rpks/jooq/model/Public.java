@@ -11,7 +11,7 @@ import org.jooq.Catalog;
 import org.jooq.Table;
 import org.jooq.impl.SchemaImpl;
 
-import ru.mai.lessons.rpks.jooq.model.tables.FilterRules;
+import ru.mai.lessons.rpks.jooq.model.tables.DeduplicationRules;
 
 
 /**
@@ -28,9 +28,9 @@ public class Public extends SchemaImpl {
     public static final Public PUBLIC = new Public();
 
     /**
-     * The table <code>public.filter_rules</code>.
+     * The table <code>public.deduplication_rules</code>.
      */
-    public final FilterRules FILTER_RULES = FilterRules.FILTER_RULES;
+    public final DeduplicationRules DEDUPLICATION_RULES = DeduplicationRules.DEDUPLICATION_RULES;
 
     /**
      * No further instances allowed
@@ -48,7 +48,7 @@ public class Public extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.asList(
-            FilterRules.FILTER_RULES
+            DeduplicationRules.DEDUPLICATION_RULES
         );
     }
 }

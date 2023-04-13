@@ -89,11 +89,11 @@ public class ServiceDeduplicationMain {
 
 
     public static void main(String[] args) throws Exception {
-//        GenerationTool.generate(
-//                Files.readString(
-//                        Path.of("jooq-config.xml")
-//                )
-//        );
+        GenerationTool.generate(
+                Files.readString(
+                        Path.of("jooq-config.xml")
+                )
+        );
 
 //        log.info("Start service Deduplication");
 //        ConfigReader configReader = new ConfigReaderImpl();
