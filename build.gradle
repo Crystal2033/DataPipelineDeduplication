@@ -26,7 +26,8 @@ dependencies {
     // databases
     implementation 'org.postgresql:postgresql:42.5.4'
     implementation 'com.zaxxer:HikariCP:5.0.1'
-    implementation 'org.jooq:jooq:3.17.8'
+    implementation 'org.jooq:jooq:3.18.0'
+    implementation 'org.jooq:jooq-codegen:3.18.0'
 
     // redis
     implementation 'redis.clients:jedis:4.3.1'
