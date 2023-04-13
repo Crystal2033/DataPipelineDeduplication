@@ -1,21 +1,15 @@
 package ru.mai.lessons.rpks.impl;
 
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import ru.mai.lessons.rpks.RedisClient;
 import ru.mai.lessons.rpks.RuleProcessor;
 import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.model.Rule;
 
-import java.util.Map;
-import java.util.function.BiPredicate;
-
 @RequiredArgsConstructor
 public final class RuleProcessorImpl implements RuleProcessor {
-    private static final Map<String, BiPredicate<String, String>> functionNameAndItsBiPredicate = Map.of(
-            "equals", (fieldValue, filterValue) -> filterValue.equals(fieldValue),
-            "contains", (fieldValue, filterValue) -> fieldValue != null && fieldValue.contains(filterValue),
-            "not_equals", (fieldValue, filterValue) -> fieldValue != null && !fieldValue.equals("") && !filterValue.equals(fieldValue),
-            "not_contains", (fieldValue, filterValue) -> fieldValue != null && !fieldValue.equals("") && !fieldValue.contains(filterValue)
-    );
+    private final RedisClient redisClient;
 
     @Override
     public Message processing(Message message, Rule[] rules) {
@@ -24,19 +18,49 @@ public final class RuleProcessorImpl implements RuleProcessor {
             return message;
         }
 
-        for (Rule rule : rules) {
-            if (!setMessageState(message, rule)) {
-                break;
-            }
-        }
+        CombinedRule combinedRule = combineRules(rules);
+        setMessageState(message, combinedRule);
         return message;
     }
 
-    private boolean setMessageState(Message message, Rule rule) {
-        return true;
+    private CombinedRule combineRules(Rule[] rules) {
+        long maxTimeToLiveSec = 0;
+        StringBuilder stringBuilderToCombineRules = new StringBuilder();
+
+        for (Rule rule : rules) {
+            boolean ruleIsActive = rule.getIsActive();
+            if (!ruleIsActive) {
+                continue;
+            }
+
+            maxTimeToLiveSec = Math.max(maxTimeToLiveSec, rule.getTimeToLiveSec());
+            if (stringBuilderToCombineRules.length() != 0) {
+                stringBuilderToCombineRules.append(':');
+            }
+            stringBuilderToCombineRules.append(rule.getRuleId());
+        }
+        return new CombinedRule(stringBuilderToCombineRules.toString(), maxTimeToLiveSec);
     }
 
-    private String getFieldValueFromJSON(String jsonString, String fieldName) {
-        return "";
+    private void setMessageState(Message message, CombinedRule combinedRule) {
+        if (!combinedRule.isActive()) {
+            message.setDeduplicationState(true);
+            return;
+        }
+        if (redisClient.containsKey(combinedRule.getCombinedRules())) {
+            message.setDeduplicationState(false);
+            return;
+        }
+        redisClient.writeData(combinedRule.toString(), message.getValue(), combinedRule.getTimeToLiveSec());
+    }
+
+    @Data
+    private static class CombinedRule {
+        private final String combinedRules;
+        private final long timeToLiveSec;
+
+        public boolean isActive() {
+            return combinedRules.length() > 0;
+        }
     }
 }

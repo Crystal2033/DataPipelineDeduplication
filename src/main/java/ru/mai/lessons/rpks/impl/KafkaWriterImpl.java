@@ -40,12 +40,12 @@ public final class KafkaWriterImpl implements KafkaWriter {
     }
 
     private void send(Message message) {
-        if (!isInitialized) {
+        if (!this.isInitialized) {
             init();
         }
 
         Future<RecordMetadata> response;
-        response = kafkaProducer.send(new ProducerRecord<>(topic, message.getValue()));
+        response = this.kafkaProducer.send(new ProducerRecord<>(topic, message.getValue()));
 
         Optional.ofNullable(response).ifPresent(rsp -> {
             try {
@@ -60,7 +60,7 @@ public final class KafkaWriterImpl implements KafkaWriter {
     private void init() {
         log.info("init writerImpl");
 
-        kafkaProducer = new KafkaProducer<>(
+        this.kafkaProducer = new KafkaProducer<>(
                 Map.of(
                         ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
                         ProducerConfig.CLIENT_ID_CONFIG, UUID.randomUUID().toString()
@@ -69,6 +69,6 @@ public final class KafkaWriterImpl implements KafkaWriter {
                 new StringSerializer()
         );
 
-        isInitialized = true;
+        this.isInitialized = true;
     }
 }

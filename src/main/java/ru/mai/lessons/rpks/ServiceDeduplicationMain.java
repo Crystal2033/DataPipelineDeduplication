@@ -40,7 +40,6 @@ class Audit extends JedisPubSub {
 @Data
 @RequiredArgsConstructor
 class RedisClient1 {
-
     private final String host;
     private final int port;
 
@@ -87,6 +86,8 @@ class RedisClient1 {
 
 @Slf4j
 public class ServiceDeduplicationMain {
+
+
     public static void main(String[] args) throws Exception {
 //        GenerationTool.generate(
 //                Files.readString(
@@ -94,11 +95,11 @@ public class ServiceDeduplicationMain {
 //                )
 //        );
 
-        log.info("Start service Deduplication");
-        ConfigReader configReader = new ConfigReaderImpl();
-        Service service = new ServiceDeduplication(); // ваша реализация service
-        service.start(configReader.loadConfig());
-        log.info("Terminate service Deduplication");
+//        log.info("Start service Deduplication");
+//        ConfigReader configReader = new ConfigReaderImpl();
+//        Service service = new ServiceDeduplication(); // ваша реализация service
+//        service.start(configReader.loadConfig());
+//        log.info("Terminate service Deduplication");
 
 //        log.info("Start application");
 //        RedisClient1 redisClient = new RedisClient1("localhost", 6379);

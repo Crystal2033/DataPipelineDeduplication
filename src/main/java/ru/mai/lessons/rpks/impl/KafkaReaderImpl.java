@@ -33,7 +33,7 @@ public final class KafkaReaderImpl implements KafkaReader {
 
     @Override
     public void processing() {
-        kafkaConsumer = new KafkaConsumer<>(
+        this.kafkaConsumer = new KafkaConsumer<>(
                 Map.of(
                         ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, this.bootstrapServers,
                         ConsumerConfig.GROUP_ID_CONFIG, this.groupId,
@@ -44,7 +44,7 @@ public final class KafkaReaderImpl implements KafkaReader {
         );
 
         log.info("consumer topic:" + topic);
-        kafkaConsumer.subscribe(Collections.singletonList(topic));
+        this.kafkaConsumer.subscribe(Collections.singletonList(topic));
 
         log.info("init readerImpl");
 
@@ -63,8 +63,8 @@ public final class KafkaReaderImpl implements KafkaReader {
             }
             log.info("Read is done!");
 
-            kafkaConsumer.close();
-            executor.shutdown();
+            this.kafkaConsumer.close();
+            this.executor.shutdown();
         });
     }
 }
