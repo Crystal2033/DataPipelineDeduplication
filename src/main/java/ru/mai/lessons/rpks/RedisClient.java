@@ -10,4 +10,5 @@ public interface RedisClient {
 
     boolean containsKey(String key);
     void writeData(String key, String value, long seconds);
+    String getData(String key);
 }

@@ -49,7 +49,7 @@ public final class KafkaWriterImpl implements KafkaWriter {
 
         Optional.ofNullable(response).ifPresent(rsp -> {
             try {
-                log.info("Message send {}", rsp.get());
+                log.info("Send message {}", rsp.get());
             } catch (InterruptedException | ExecutionException e) {
                 log.error("Error sending message ", e);
                 Thread.currentThread().interrupt();

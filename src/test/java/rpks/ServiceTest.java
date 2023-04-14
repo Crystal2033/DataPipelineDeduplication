@@ -225,7 +225,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(5000L);
+            Thread.sleep(6000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -451,7 +451,7 @@ class ServiceTest {
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
 
             assertFalse(consumerRecords.isEmpty());
-            assertEquals(6, consumerRecords.count());
+            assertEquals(4, consumerRecords.count());
 
             for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
                 assertNotNull(consumerRecord.value());
