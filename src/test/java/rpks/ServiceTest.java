@@ -186,6 +186,8 @@ class ServiceTest {
              KafkaConsumer<String, String> consumer = createConsumer();
              KafkaProducer<String, String> producer = createProducer()) {
 
+            Thread.sleep(10000L);
+
             checkAndCreateRequiredTopics(adminClient, topics);
 
             consumer.subscribe(Collections.singletonList(topicOut));
@@ -282,6 +284,8 @@ class ServiceTest {
         try (AdminClient adminClient = createAdminClient();
              KafkaConsumer<String, String> consumer = createConsumer();
              KafkaProducer<String, String> producer = createProducer()) {
+
+            Thread.sleep(10000L);
 
             checkAndCreateRequiredTopics(adminClient, topics);
 
@@ -393,6 +397,8 @@ class ServiceTest {
              KafkaConsumer<String, String> consumer = createConsumer();
              KafkaProducer<String, String> producer = createProducer()) {
 
+            Thread.sleep(10000L);
+
             checkAndCreateRequiredTopics(adminClient, topics);
 
             consumer.subscribe(Collections.singletonList(topicOut));
@@ -489,6 +495,9 @@ class ServiceTest {
              KafkaConsumer<String, String> consumer = createConsumer();
              KafkaProducer<String, String> producer = createProducer()) {
 
+            Thread.sleep(10000L);
+
+
             checkAndCreateRequiredTopics(adminClient, topics);
 
             consumer.subscribe(Collections.singletonList(topicOut));
@@ -572,6 +581,8 @@ class ServiceTest {
         try (AdminClient adminClient = createAdminClient();
              KafkaConsumer<String, String> consumer = createConsumer();
              KafkaProducer<String, String> producer = createProducer()) {
+
+            Thread.sleep(10000L);
 
             checkAndCreateRequiredTopics(adminClient, topics);
 
