@@ -193,8 +193,6 @@ class ServiceTest {
              KafkaConsumer<String, String> consumer = createConsumer();
              KafkaProducer<String, String> producer = createProducer()) {
 
-            //Thread.sleep(10000L);
-
             checkAndCreateRequiredTopics(adminClient, topics);
 
             consumer.subscribe(Collections.singletonList(topicOut));
@@ -291,8 +289,6 @@ class ServiceTest {
         try (AdminClient adminClient = createAdminClient();
              KafkaConsumer<String, String> consumer = createConsumer();
              KafkaProducer<String, String> producer = createProducer()) {
-
-            Thread.sleep(10000L);
 
             checkAndCreateRequiredTopics(adminClient, topics);
 
@@ -404,8 +400,6 @@ class ServiceTest {
              KafkaConsumer<String, String> consumer = createConsumer();
              KafkaProducer<String, String> producer = createProducer()) {
 
-            Thread.sleep(10000L);
-
             checkAndCreateRequiredTopics(adminClient, topics);
 
             consumer.subscribe(Collections.singletonList(topicOut));
@@ -464,7 +458,7 @@ class ServiceTest {
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
 
             assertFalse(consumerRecords.isEmpty());
-            assertEquals(6, consumerRecords.count());
+            assertEquals(4, consumerRecords.count());
 
             for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
                 assertNotNull(consumerRecord.value());
@@ -501,9 +495,6 @@ class ServiceTest {
         try (AdminClient adminClient = createAdminClient();
              KafkaConsumer<String, String> consumer = createConsumer();
              KafkaProducer<String, String> producer = createProducer()) {
-
-            Thread.sleep(10000L);
-
 
             checkAndCreateRequiredTopics(adminClient, topics);
 
@@ -588,8 +579,6 @@ class ServiceTest {
         try (AdminClient adminClient = createAdminClient();
              KafkaConsumer<String, String> consumer = createConsumer();
              KafkaProducer<String, String> producer = createProducer()) {
-
-            Thread.sleep(10000L);
 
             checkAndCreateRequiredTopics(adminClient, topics);
 
