@@ -37,7 +37,6 @@ public class RedisClientImpl implements RedisClient {
     }
 
     private JedisPooled getJedis() {
-        jedis = Optional.ofNullable(jedis).orElse(new JedisPooled(host, port));
-        return jedis;
+        return Optional.ofNullable(jedis).orElse(new JedisPooled(host, port));
     }
 }

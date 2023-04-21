@@ -23,6 +23,7 @@ import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.KafkaContainer;
@@ -77,7 +78,7 @@ class ServiceTest {
 
     private final Service serviceDeduplication = new ServiceDeduplication();
 
-    @AfterEach
+    @BeforeEach
     void clearRedis() {
         JedisPooled jedisPooled = createRedisClient();
         jedisPooled.keys("*").forEach(jedisPooled::del);
