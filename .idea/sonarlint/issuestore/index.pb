@@ -37,3 +37,9 @@ b
 2src/main/java/ru/mai/lessons/rpks/KafkaReader.java,a\3\a3f424bbcf25a85c93204d58f0870cf237ddbbd6
 l
 <src/main/java/ru/mai/lessons/rpks/impl/ConfigReaderImpl.java,c\5\c5d911d1d539e7ec475a9c102882c099e7991711
+b
+2src/main/java/ru/mai/lessons/rpks/KafkaWriter.java,6\7\67fb83b0c62ce1a45e1b4c0c0f68e80f8a68e515
+9
+	README.md,8\e\8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
+h
+8src/main/java/ru/mai/lessons/rpks/impl/DbReaderImpl.java,0\e\0e2d576113f99f68a0c2d3412fc592e54829761d

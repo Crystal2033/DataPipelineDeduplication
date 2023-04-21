@@ -244,6 +244,7 @@ class ServiceTest {
                 }
             });
 
+            Thread.sleep(5000L);
             Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
@@ -356,10 +357,10 @@ class ServiceTest {
                 }
             });
 
+            Thread.sleep(6000L);
             Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
-
             assertFalse(consumerRecords.isEmpty());
             assertEquals(6, consumerRecords.count());
 
@@ -454,6 +455,7 @@ class ServiceTest {
                 }
             });
 
+            Thread.sleep(5000L);
             Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
@@ -534,6 +536,7 @@ class ServiceTest {
                 }
             });
 
+            Thread.sleep(5000L);
             Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
@@ -632,6 +635,7 @@ class ServiceTest {
                 }
             });
 
+            Thread.sleep(5000L);
             Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);

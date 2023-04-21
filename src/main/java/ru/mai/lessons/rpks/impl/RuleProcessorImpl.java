@@ -28,14 +28,14 @@ public final class RuleProcessorImpl implements RuleProcessor {
 
         List<String> activeFieldNames = getSortedActiveFieldNamesFromRules(rules);
         if (activeFieldNames.isEmpty()) {
-            log.info("No active filed");
+            //log.info("No active filed");
             message.setDeduplicationState(true);
             return message;
         }
 
         List<String> activeFieldValues = getActiveFieldValuesFromMessage(message, activeFieldNames);
         if (activeFieldValues.isEmpty()) {
-            log.info("Message is empty!");
+            //log.info("Message is empty!");
             message.setDeduplicationState(false);
             return message;
         }
@@ -46,7 +46,7 @@ public final class RuleProcessorImpl implements RuleProcessor {
         String combinedActiveFieldValues = combineStringListToString(activeFieldValues);
 
         if (!redisClient.containsKey(combinedActiveFieldValues)) {
-            log.info("message {} is not in redis", message.getValue());
+            //log.info("message {} is not in redis", message.getValue());
             message.setDeduplicationState(true);
             redisClient.writeData(combinedActiveFieldValues, combinedActiveFieldNames, secondsToLive);
             return message;
@@ -54,7 +54,7 @@ public final class RuleProcessorImpl implements RuleProcessor {
 
         String data = redisClient.getData(combinedActiveFieldValues);
         if (data.equals(combinedActiveFieldNames)) {
-            log.info("message {} already in redis", message.getValue());
+            //log.info("message {} already in redis", message.getValue());
             message.setDeduplicationState(false);
         } else {
             log.info("update value of message {} in redis", message.getValue());
