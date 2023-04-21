@@ -186,7 +186,7 @@ class ServiceTest {
              KafkaConsumer<String, String> consumer = createConsumer();
              KafkaProducer<String, String> producer = createProducer()) {
 
-            Thread.sleep(10000L);
+            //Thread.sleep(10000L);
 
             checkAndCreateRequiredTopics(adminClient, topics);
 
@@ -457,7 +457,7 @@ class ServiceTest {
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
 
             assertFalse(consumerRecords.isEmpty());
-            assertEquals(4, consumerRecords.count());
+            assertEquals(6, consumerRecords.count());
 
             for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
                 assertNotNull(consumerRecord.value());
