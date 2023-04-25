@@ -51,7 +51,7 @@ public class RulesUpdaterThread implements Runnable {
                 log.info("New rules have been inserted.");
                 log.info("Is connected to database: {}", dataBaseReader.isConnectedToDataBase());
                 Thread.sleep(myConfig.getConfig("application")
-                        .getLong("updateIntervalSec") * 1000);
+                        .getLong("updateIntervalSec") * 100);
 
             } catch (InterruptedException e) {
                 log.error("Trouble with sleep of thread. " + e);
