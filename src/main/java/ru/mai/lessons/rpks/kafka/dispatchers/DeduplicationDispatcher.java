@@ -3,8 +3,9 @@ package ru.mai.lessons.rpks.kafka.dispatchers;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import ru.mai.lessons.rpks.exceptions.UndefinedOperationException;
-import ru.mai.lessons.rpks.kafka.KafkaWriterImpl;
-import ru.mai.lessons.rpks.repository.RulesUpdaterThread;
+import ru.mai.lessons.rpks.kafka.impl.KafkaWriterImpl;
+import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
+import ru.mai.lessons.rpks.repository.impl.RulesUpdaterThread;
 import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.model.Rule;
 
@@ -18,7 +19,7 @@ public class DeduplicationDispatcher implements DispatcherKafka {
     private final RulesUpdaterThread updaterRulesThread; //to get actual rules, which are in db thread reader
     private ConcurrentHashMap<String, List<Rule>> rulesConcurrentMap;
     private final KafkaWriterImpl kafkaWriter;
-
+    //+redis
     public DeduplicationDispatcher(String topicToSendMsg, String kafkaTopicBootstrap, RulesUpdaterThread updaterRulesThread) {
         this.topicToSendMsg = topicToSendMsg;
         this.bootstrapServers = kafkaTopicBootstrap;

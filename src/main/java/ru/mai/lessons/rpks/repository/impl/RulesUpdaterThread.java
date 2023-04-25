@@ -1,4 +1,4 @@
-package ru.mai.lessons.rpks.repository;
+package ru.mai.lessons.rpks.repository.impl;
 
 import com.typesafe.config.Config;
 import lombok.Getter;

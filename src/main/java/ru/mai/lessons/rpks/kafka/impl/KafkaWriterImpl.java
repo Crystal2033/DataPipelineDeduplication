@@ -1,4 +1,4 @@
-package ru.mai.lessons.rpks.kafka;
+package ru.mai.lessons.rpks.kafka.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

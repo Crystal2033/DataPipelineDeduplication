@@ -3,11 +3,11 @@ package ru.mai.lessons.rpks.ServiceDeduplication;
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import ru.mai.lessons.rpks.ServiceDeduplication.interfaces.Service;
-import ru.mai.lessons.rpks.kafka.KafkaReaderImpl;
-import ru.mai.lessons.rpks.kafka.dispatchers.DispatcherKafka;
+import ru.mai.lessons.rpks.kafka.impl.KafkaReaderImpl;
+import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
 import ru.mai.lessons.rpks.model.Rule;
-import ru.mai.lessons.rpks.repository.DataBaseReader;
-import ru.mai.lessons.rpks.repository.RulesUpdaterThread;
+import ru.mai.lessons.rpks.repository.impl.DataBaseReader;
+import ru.mai.lessons.rpks.repository.impl.RulesUpdaterThread;
 
 import java.io.Closeable;
 import java.io.IOException;

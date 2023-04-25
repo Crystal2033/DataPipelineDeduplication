@@ -1,4 +1,4 @@
-package ru.mai.lessons.rpks.kafka;
+package ru.mai.lessons.rpks.kafka.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,12 +9,11 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import ru.mai.lessons.rpks.kafka.interfaces.KafkaReader;
 import ru.mai.lessons.rpks.exceptions.UndefinedOperationException;
 import ru.mai.lessons.rpks.kafka.dispatchers.DeduplicationDispatcher;
-import ru.mai.lessons.rpks.kafka.dispatchers.DispatcherKafka;
+import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
 
 import java.io.Closeable;
 import java.io.IOException;
