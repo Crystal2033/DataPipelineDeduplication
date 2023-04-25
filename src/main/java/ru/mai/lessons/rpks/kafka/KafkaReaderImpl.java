@@ -1,4 +1,4 @@
-package ru.mai.lessons.rpks.impl.kafka;
+package ru.mai.lessons.rpks.kafka;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +9,12 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import ru.mai.lessons.rpks.KafkaReader;
+import ru.mai.lessons.rpks.kafka.interfaces.KafkaReader;
 import ru.mai.lessons.rpks.exceptions.UndefinedOperationException;
-import ru.mai.lessons.rpks.impl.kafka.dispatchers.DeduplicationDispatcher;
-import ru.mai.lessons.rpks.impl.kafka.dispatchers.DispatcherKafka;
+import ru.mai.lessons.rpks.kafka.dispatchers.DeduplicationDispatcher;
+import ru.mai.lessons.rpks.kafka.dispatchers.DispatcherKafka;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -47,14 +48,14 @@ public class KafkaReaderImpl implements KafkaReader {
 
             kafkaConsumer.subscribe(Collections.singletonList(topic));
 
-            listenAndDelegateFiltering(executorService, kafkaConsumer);
+            listenAndDelegateWork(executorService, kafkaConsumer);
         } catch (IOException e) {
             log.error("There is a problem with binding closeable object to executor service.");
         }
 
     }
 
-    private void listenAndDelegateFiltering(ExecutorService executorService, KafkaConsumer<String, String> kafkaConsumer) {
+    private void listenAndDelegateWork(ExecutorService executorService, KafkaConsumer<String, String> kafkaConsumer) {
         try (kafkaConsumer) {
             while (!isExit) {
                 ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
@@ -67,7 +68,7 @@ public class KafkaReaderImpl implements KafkaReader {
                         isExit = true;
                     } else {
                         log.info("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
-                        executorService.execute(() -> sendToFilter(consumerRecord.value()));
+                        //executorService.execute(() -> sendToFilter(consumerRecord.value()));
                     }
                 }
             }
@@ -87,7 +88,7 @@ public class KafkaReaderImpl implements KafkaReader {
         );
     }
 
-    private void sendToFilter(String msg) {
+    private void sendToDeduplicator(String msg) {
         try {
             log.info("Before action with message {}", msg);
             dispatcherKafka.actionWithMessage(msg);

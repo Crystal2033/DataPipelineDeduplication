@@ -1,4 +1,4 @@
-package ru.mai.lessons.rpks.impl.repository;
+package ru.mai.lessons.rpks.repository;
 
 import com.typesafe.config.Config;
 import lombok.Getter;
@@ -20,7 +20,7 @@ public class RulesUpdaterThread implements Runnable {
 
     private final DataBaseReader dataBaseReader;
 
-    private final Config myConfig;
+    private final Config configForSleep;
     private boolean isExit = false;
 
     public void stopReadingDataBase() {
@@ -50,7 +50,7 @@ public class RulesUpdaterThread implements Runnable {
                 insertNewRulesInMap(rules);
                 log.info("New rules have been inserted.");
                 log.info("Is connected to database: {}", dataBaseReader.isConnectedToDataBase());
-                Thread.sleep(myConfig.getConfig("application")
+                Thread.sleep(configForSleep.getConfig("application")
                         .getLong("updateIntervalSec") * 100);
 
             } catch (InterruptedException e) {

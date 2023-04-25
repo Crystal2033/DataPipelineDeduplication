@@ -1,4 +1,4 @@
-package ru.mai.lessons.rpks.impl.kafka;
+package ru.mai.lessons.rpks.kafka;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,7 +8,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
-import ru.mai.lessons.rpks.KafkaWriter;
+import ru.mai.lessons.rpks.kafka.interfaces.KafkaWriter;
 import ru.mai.lessons.rpks.model.Message;
 
 import java.util.Map;

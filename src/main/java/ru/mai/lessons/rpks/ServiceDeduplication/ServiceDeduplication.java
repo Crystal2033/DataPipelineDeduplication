@@ -1,14 +1,13 @@
-package ru.mai.lessons.rpks.impl;
+package ru.mai.lessons.rpks.ServiceDeduplication;
 
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
-import ru.mai.lessons.rpks.Service;
-import ru.mai.lessons.rpks.impl.kafka.KafkaReaderImpl;
-import ru.mai.lessons.rpks.impl.kafka.dispatchers.DeduplicationDispatcher;
-import ru.mai.lessons.rpks.impl.kafka.dispatchers.DispatcherKafka;
-import ru.mai.lessons.rpks.impl.repository.DataBaseReader;
-import ru.mai.lessons.rpks.impl.repository.RulesUpdaterThread;
+import ru.mai.lessons.rpks.ServiceDeduplication.interfaces.Service;
+import ru.mai.lessons.rpks.kafka.KafkaReaderImpl;
+import ru.mai.lessons.rpks.kafka.dispatchers.DispatcherKafka;
 import ru.mai.lessons.rpks.model.Rule;
+import ru.mai.lessons.rpks.repository.DataBaseReader;
+import ru.mai.lessons.rpks.repository.RulesUpdaterThread;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -18,8 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static ru.mai.lessons.rpks.impl.constants.MainNames.KAFKA_NAME;
-import static ru.mai.lessons.rpks.impl.constants.MainNames.TOPIC_NAME_PATH;
+import static ru.mai.lessons.rpks.constants.MainNames.KAFKA_NAME;
+import static ru.mai.lessons.rpks.constants.MainNames.TOPIC_NAME_PATH;
 
 @Slf4j
 public class ServiceDeduplication implements Service {
@@ -84,12 +83,9 @@ public class ServiceDeduplication implements Service {
 //
 //
                 executorService.execute(rulesDBUpdaterThread);
-                while(true){
-
-                }
 //
-//                startKafkaReader(filterDispatcher);
-                //executorService.shutdown();
+                startKafkaReader(null);
+                executorService.shutdown();
             } else {
                 log.error("There is a problem with connection to database.");
             }

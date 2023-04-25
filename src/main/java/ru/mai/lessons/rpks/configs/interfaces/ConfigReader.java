@@ -1,4 +1,4 @@
-package ru.mai.lessons.rpks;
+package ru.mai.lessons.rpks.configs.interfaces;
 
 import com.typesafe.config.Config;
 

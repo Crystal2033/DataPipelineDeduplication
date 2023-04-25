@@ -1,4 +1,4 @@
-package ru.mai.lessons.rpks.impl.kafka.dispatchers;
+package ru.mai.lessons.rpks.kafka.dispatchers;
 
 import ru.mai.lessons.rpks.exceptions.UndefinedOperationException;
 

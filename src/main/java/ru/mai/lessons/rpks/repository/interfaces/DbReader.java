@@ -1,4 +1,4 @@
-package ru.mai.lessons.rpks;
+package ru.mai.lessons.rpks.repository.interfaces;
 
 import ru.mai.lessons.rpks.model.Rule;
 

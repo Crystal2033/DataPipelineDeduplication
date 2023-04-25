@@ -1,4 +1,4 @@
-package ru.mai.lessons.rpks.impl.repository;
+package ru.mai.lessons.rpks.repository;
 
 import com.typesafe.config.Config;
 import com.zaxxer.hikari.HikariConfig;
@@ -9,7 +9,7 @@ import org.jooq.DSLContext;
 import org.jooq.PlainSQL;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
-import ru.mai.lessons.rpks.DbReader;
+import ru.mai.lessons.rpks.repository.interfaces.DbReader;
 import ru.mai.lessons.rpks.model.Rule;
 
 import java.sql.Connection;

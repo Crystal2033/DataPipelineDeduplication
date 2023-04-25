@@ -1,10 +1,10 @@
-package ru.mai.lessons.rpks.impl;
+package ru.mai.lessons.rpks.configs;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import ru.mai.lessons.rpks.ConfigReader;
+import ru.mai.lessons.rpks.configs.interfaces.ConfigReader;
 
-import static ru.mai.lessons.rpks.impl.constants.MainNames.CONF_PATH;
+import static ru.mai.lessons.rpks.constants.MainNames.CONF_PATH;
 
 public class ConfigurationReader implements ConfigReader {
     @Override
