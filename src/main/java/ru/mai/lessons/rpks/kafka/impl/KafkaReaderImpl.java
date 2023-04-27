@@ -12,8 +12,8 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import ru.mai.lessons.rpks.kafka.interfaces.KafkaReader;
 import ru.mai.lessons.rpks.exceptions.UndefinedOperationException;
-import ru.mai.lessons.rpks.kafka.dispatchers.DeduplicationDispatcher;
 import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
+import ru.mai.lessons.rpks.kafka.dispatchers.*;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -60,14 +60,14 @@ public class KafkaReaderImpl implements KafkaReader {
                 ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
                 for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
                     if (consumerRecord.value().equals(exitWord)) {
-                        if (dispatcherKafka instanceof DeduplicationDispatcher filteringDispatcher) {
-                            filteringDispatcher.closeReadingThread();
+                        if (dispatcherKafka instanceof DeduplicationDispatcher deduplicationDispatcher) {
+                            deduplicationDispatcher.closeReadingThread();
                             log.info("Closing thread");
                         }
                         isExit = true;
                     } else {
                         log.info("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
-                        //executorService.execute(() -> sendToFilter(consumerRecord.value()));
+                        //executorService.execute(() -> sendToDeduplicator(consumerRecord.value()));
                     }
                 }
             }

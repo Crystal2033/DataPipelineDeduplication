@@ -4,6 +4,7 @@ import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import ru.mai.lessons.rpks.ServiceDeduplication.interfaces.Service;
 import ru.mai.lessons.rpks.kafka.impl.KafkaReaderImpl;
+import ru.mai.lessons.rpks.kafka.impl.KafkaWriterImpl;
 import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
 import ru.mai.lessons.rpks.model.Rule;
 import ru.mai.lessons.rpks.repository.impl.DataBaseReader;
@@ -70,11 +71,22 @@ public class ServiceDeduplication implements Service {
 
     }
 
+    private KafkaWriterImpl createKafkaWriter(String topicToSendMsg, String bootstrapServers){
+                return KafkaWriterImpl.builder()
+                .topic(topicToSendMsg)
+                .bootstrapServers(bootstrapServers)
+                .build();
+    }
+
     private void connectAndRun(DataBaseReader dataBaseReader, ExecutorService executorService) {
         try {
             if (dataBaseReader.connectToDataBase()) {
 
                 RulesUpdaterThread rulesDBUpdaterThread = new RulesUpdaterThread(rulesConcurrentMap, dataBaseReader, outerConfig);
+
+                Config configForWriter = outerConfig.getConfig(KAFKA_NAME).getConfig("producer");
+                KafkaWriterImpl kafkaWriter = createKafkaWriter(configForWriter.getConfig("transformation")
+                        .getString(TOPIC_NAME_PATH), configForWriter.getString("bootstrap.servers"));
 
 //                Config config = outerConfig.getConfig(KAFKA_NAME)
 //                        .getConfig("producer");

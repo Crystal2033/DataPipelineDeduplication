@@ -1,31 +1,33 @@
 package ru.mai.lessons.rpks.kafka.dispatchers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONException;
 import org.json.JSONObject;
 import ru.mai.lessons.rpks.exceptions.UndefinedOperationException;
 import ru.mai.lessons.rpks.kafka.impl.KafkaWriterImpl;
 import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
+import ru.mai.lessons.rpks.redis.interfaces.RedisClient;
 import ru.mai.lessons.rpks.repository.impl.RulesUpdaterThread;
 import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.model.Rule;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static ru.mai.lessons.rpks.constants.MainNames.*;
+
 @Slf4j
 public class DeduplicationDispatcher implements DispatcherKafka {
-    private final String topicToSendMsg;
-    private final String bootstrapServers;
     private final RulesUpdaterThread updaterRulesThread; //to get actual rules, which are in db thread reader
     private ConcurrentHashMap<String, List<Rule>> rulesConcurrentMap;
     private final KafkaWriterImpl kafkaWriter;
-    //+redis
-    public DeduplicationDispatcher(String topicToSendMsg, String kafkaTopicBootstrap, RulesUpdaterThread updaterRulesThread) {
-        this.topicToSendMsg = topicToSendMsg;
-        this.bootstrapServers = kafkaTopicBootstrap;
+    private final RedisClient redis;
+    public DeduplicationDispatcher(KafkaWriterImpl kafkaWriter, RedisClient redis, RulesUpdaterThread updaterRulesThread) {
         this.updaterRulesThread = updaterRulesThread;
         updateRules();
-        kafkaWriter = createKafkaWriterForSendingMessage();
+        this.kafkaWriter = kafkaWriter;
+        this.redis = redis;
     }
 
     public void updateRules() {
@@ -60,40 +62,72 @@ public class DeduplicationDispatcher implements DispatcherKafka {
     }
 
     private void sendMessageIfCompatibleWithDBRules(String checkingMessage) throws UndefinedOperationException {
-//        updateRules();
-//        log.info("Size of rules: {}", rulesConcurrentMap.size());
-//        if (rulesConcurrentMap.size() == 0) {
-//            kafkaWriter.processing(getMessage(checkingMessage, false));
-//            return;
-//        }
-//        try {
-//            JSONObject jsonObject = new JSONObject(checkingMessage);
-//
-//            boolean isCompatible = checkField("name", jsonObject);
-//            log.info("compatible after name: {}", isCompatible);
-//            if (!isCompatible) {
-//                kafkaWriter.processing(getMessage(checkingMessage, false));
-//                return;
-//            }
-//            isCompatible = checkField("age", jsonObject);
-//            log.info("compatible after age: {}", isCompatible);
-//            if (!isCompatible) {
-//                kafkaWriter.processing(getMessage(checkingMessage, false));
-//                return;
-//            }
-//
-//            isCompatible = checkField("sex", jsonObject);
-//            log.info("compatible after sex: {}", isCompatible);
-//            if (!isCompatible) {
-//                kafkaWriter.processing(getMessage(checkingMessage, false));
-//                return;
-//            }
-//            kafkaWriter.processing(getMessage(checkingMessage, true));
-//        } catch (JSONException ex) {
-//            log.error("Parsing json error: ", ex);
-//        }
+        updateRules();
+        log.info("Size of rules: {}", rulesConcurrentMap.size());
+        if (rulesConcurrentMap.size() == 0) {
+            kafkaWriter.processing(getMessage(checkingMessage, true));
+            return;
+        }
+        kafkaWriter.processing(checkForDuplicateAndGetMessageByString(checkingMessage));
     }
 
+    private String getKeyByFields(String checkingMessage){
+        StringBuilder keyBuilder = new StringBuilder();
+        try {
+            JSONObject jsonObject = new JSONObject(checkingMessage);
+
+            if(rulesConcurrentMap.containsKey(NAME_STRING_VALUE)){
+                appendNewValueInKey(keyBuilder, jsonObject.get(NAME_STRING_VALUE).toString());
+            }
+            if(rulesConcurrentMap.containsKey(AGE_STRING_VALUE)){
+                appendNewValueInKey(keyBuilder, jsonObject.get(AGE_STRING_VALUE).toString());
+            }
+            if(rulesConcurrentMap.containsKey(SEX_STRING_VALUE)){
+                appendNewValueInKey(keyBuilder, jsonObject.get(SEX_STRING_VALUE).toString());
+            }
+        }
+        catch (JSONException ex) {
+            log.error("Parsing json error: ", ex);
+        }
+        return keyBuilder.toString();// TODO: probably null;
+    }
+
+
+
+    private void appendNewValueInKey(StringBuilder keyBuilder, String newValue){
+        keyBuilder.append(newValue);
+        keyBuilder.append(":");
+    }
+    private Message checkForDuplicateAndGetMessageByString(String checkingMessage){
+        long expireTimeInSec = getTotalExpireTimeByExistingRules();
+        return redis.getMessageByStringAndTryToInsertInRedis(checkingMessage, getKeyByFields(checkingMessage), expireTimeInSec);
+    }
+
+    private long getTotalExpireTimeByExistingRules(){
+        long expireTimeInSec = 0;
+        List<Rule> rules = rulesConcurrentMap.get(NAME_STRING_VALUE);
+        expireTimeInSec = getMaxExpireTimeByField(rules, expireTimeInSec);
+
+        rules = rulesConcurrentMap.get(AGE_STRING_VALUE);
+        expireTimeInSec = getMaxExpireTimeByField(rules, expireTimeInSec);
+
+        rules = rulesConcurrentMap.get(SEX_STRING_VALUE);
+        expireTimeInSec = getMaxExpireTimeByField(rules, expireTimeInSec);
+
+        return expireTimeInSec;
+
+    }
+
+    private long getMaxExpireTimeByField(List<Rule> rules, long currentExpireTime){
+        if(!rules.isEmpty()){
+            return Math.max(currentExpireTime, rules.stream().max(
+                    Comparator.comparing(Rule::getTimeToLiveSec)).get().getTimeToLiveSec()
+            );
+        }
+        else{
+            return currentExpireTime;
+        }
+    }
     private boolean isCompatibleWithRule(String operation, String expected, String userValue) throws UndefinedOperationException {
 //        log.info("operation={}, expected={}, userValue={}", operation, expected, userValue);
 //        return switch (operation) {
@@ -107,18 +141,9 @@ public class DeduplicationDispatcher implements DispatcherKafka {
     }
 
     private Message getMessage(String value, boolean isCompatible) {
-//        return Message.builder()
-//                .value(value)
-//                .filterState(isCompatible)
-//                .build();
-        return null;
-    }
-
-    private KafkaWriterImpl createKafkaWriterForSendingMessage() {
-//        return KafkaWriterImpl.builder()
-//                .topic(topicToSendMsg)
-//                .bootstrapServers(bootstrapServers)
-//                .build();
-        return null;
+        return Message.builder()
+                .value(value)
+                .deduplicationState(isCompatible)
+                .build();
     }
 }
