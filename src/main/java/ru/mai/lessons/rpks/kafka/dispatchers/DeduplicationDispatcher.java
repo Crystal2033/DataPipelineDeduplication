@@ -11,8 +11,10 @@ import ru.mai.lessons.rpks.repository.impl.RulesUpdaterThread;
 import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.model.Rule;
 
+import javax.swing.text.html.Option;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static ru.mai.lessons.rpks.constants.MainNames.*;
@@ -95,8 +97,10 @@ public class DeduplicationDispatcher implements DispatcherKafka {
 
 
     private void appendNewValueInKey(StringBuilder keyBuilder, String newValue){
+        if(!keyBuilder.isEmpty()){
+            keyBuilder.append(":");
+        }
         keyBuilder.append(newValue);
-        keyBuilder.append(":");
     }
     private Message checkForDuplicateAndGetMessageByString(String checkingMessage){
         long expireTimeInSec = getTotalExpireTimeByExistingRules();
@@ -105,6 +109,7 @@ public class DeduplicationDispatcher implements DispatcherKafka {
 
     private long getTotalExpireTimeByExistingRules(){
         long expireTimeInSec = 0;
+
         List<Rule> rules = rulesConcurrentMap.get(NAME_STRING_VALUE);
         expireTimeInSec = getMaxExpireTimeByField(rules, expireTimeInSec);
 
@@ -119,7 +124,7 @@ public class DeduplicationDispatcher implements DispatcherKafka {
     }
 
     private long getMaxExpireTimeByField(List<Rule> rules, long currentExpireTime){
-        if(!rules.isEmpty()){
+        if(rules != null){
             return Math.max(currentExpireTime, rules.stream().max(
                     Comparator.comparing(Rule::getTimeToLiveSec)).get().getTimeToLiveSec()
             );
@@ -143,7 +148,7 @@ public class DeduplicationDispatcher implements DispatcherKafka {
     private Message getMessage(String value, boolean isCompatible) {
         return Message.builder()
                 .value(value)
-                .deduplicationState(isCompatible)
+                .isDuplicate(isCompatible)
                 .build();
     }
 }

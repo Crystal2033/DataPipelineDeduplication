@@ -7,8 +7,11 @@ import ru.mai.lessons.rpks.kafka.impl.KafkaReaderImpl;
 import ru.mai.lessons.rpks.kafka.impl.KafkaWriterImpl;
 import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
 import ru.mai.lessons.rpks.model.Rule;
+import ru.mai.lessons.rpks.redis.impl.RedisClientImpl;
+import ru.mai.lessons.rpks.redis.interfaces.RedisClient;
 import ru.mai.lessons.rpks.repository.impl.DataBaseReader;
 import ru.mai.lessons.rpks.repository.impl.RulesUpdaterThread;
+import ru.mai.lessons.rpks.kafka.dispatchers.*;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -88,15 +91,15 @@ public class ServiceDeduplication implements Service {
                 KafkaWriterImpl kafkaWriter = createKafkaWriter(configForWriter.getConfig("transformation")
                         .getString(TOPIC_NAME_PATH), configForWriter.getString("bootstrap.servers"));
 
-//                Config config = outerConfig.getConfig(KAFKA_NAME)
-//                        .getConfig("producer");
-//                DispatcherKafka filterDispatcher = new DeduplicationDispatcher(config.getConfig("deduplication")
-//                        .getString(TOPIC_NAME_PATH), config.getString("bootstrap.servers"), rulesDBUpdaterThread);
-//
-//
+                RedisClient redisClient = new RedisClientImpl(outerConfig.getConfig("redis").getString("host"),
+                        outerConfig.getConfig("redis").getInt("port"));
+
+                DispatcherKafka filterDispatcher = new DeduplicationDispatcher(kafkaWriter, redisClient, rulesDBUpdaterThread);
+
+
                 executorService.execute(rulesDBUpdaterThread);
-//
-                startKafkaReader(null);
+
+                startKafkaReader(filterDispatcher);
                 executorService.shutdown();
             } else {
                 log.error("There is a problem with connection to database.");

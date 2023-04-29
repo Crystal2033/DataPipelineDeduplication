@@ -31,7 +31,7 @@ public class KafkaWriterImpl implements KafkaWriter {
             initKafkaReader();
         }
 
-        if (message.isDeduplicationState()) {
+        if (!message.isDuplicate()) {
             Future<RecordMetadata> response = null;
 
             response = kafkaProducer.send(new ProducerRecord<>(topic, message.getValue()));
