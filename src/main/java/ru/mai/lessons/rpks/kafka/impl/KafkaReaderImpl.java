@@ -10,7 +10,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import ru.mai.lessons.rpks.kafka.dispatchers.DeduplicationDispatcher;
+import ru.mai.lessons.rpks.dispatchers.DeduplicationDispatcher;
 import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
 import ru.mai.lessons.rpks.kafka.interfaces.KafkaReader;
 
@@ -74,7 +74,6 @@ public class KafkaReaderImpl implements KafkaReader {
     }
 
     private KafkaConsumer<String, String> initKafkaConsumer() {
-        //log.info("Start reading kafka topic {}", topic);
         return new KafkaConsumer<>(
                 Map.of(
                         ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,

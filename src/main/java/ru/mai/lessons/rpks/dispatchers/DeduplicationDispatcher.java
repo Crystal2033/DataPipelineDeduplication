@@ -1,4 +1,4 @@
-package ru.mai.lessons.rpks.kafka.dispatchers;
+package ru.mai.lessons.rpks.dispatchers;
 
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
@@ -81,14 +81,9 @@ public class DeduplicationDispatcher implements DispatcherKafka {
 
     private Message checkForDuplicateAndGetMessageByString(String checkingMessage) {
         long expireTimeInSec = getTotalExpireTimeByExistingRules();
-        Optional<String> optionalRedisKey = Optional.ofNullable(getKeyByFields(checkingMessage));
-        if (optionalRedisKey.isPresent()) {
-            Message message = redis.getMessageByStringAndTryToInsertInRedis(checkingMessage, optionalRedisKey.get(), expireTimeInSec);
-            return message;
-        } else {
-            return null;
-        }
-
+        return Optional.ofNullable(getKeyByFields(checkingMessage)).map(key ->
+                redis.getMessageByStringAndTryToInsertInRedis(checkingMessage, key, expireTimeInSec))
+                .orElse(null);
     }
 
     private long getTotalExpireTimeByExistingRules() {

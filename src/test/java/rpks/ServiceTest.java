@@ -32,8 +32,8 @@ import org.testcontainers.shaded.com.google.common.collect.ImmutableMap;
 import org.testcontainers.shaded.org.awaitility.Awaitility;
 import org.testcontainers.utility.DockerImageName;
 import redis.clients.jedis.JedisPooled;
-import ru.mai.lessons.rpks.ServiceDeduplication.ServiceDeduplication;
-import ru.mai.lessons.rpks.ServiceDeduplication.interfaces.Service;
+import ru.mai.lessons.rpks.services.ServiceDeduplication;
+import ru.mai.lessons.rpks.services.interfaces.Service;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;

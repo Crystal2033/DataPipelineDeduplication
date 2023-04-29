@@ -1,8 +1,9 @@
-package ru.mai.lessons.rpks.ServiceDeduplication;
+package ru.mai.lessons.rpks.services;
 
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
-import ru.mai.lessons.rpks.ServiceDeduplication.interfaces.Service;
+import ru.mai.lessons.rpks.dispatchers.DeduplicationDispatcher;
+import ru.mai.lessons.rpks.services.interfaces.Service;
 import ru.mai.lessons.rpks.kafka.impl.KafkaReaderImpl;
 import ru.mai.lessons.rpks.kafka.impl.KafkaWriterImpl;
 import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
@@ -11,7 +12,6 @@ import ru.mai.lessons.rpks.redis.impl.RedisClientImpl;
 import ru.mai.lessons.rpks.redis.interfaces.RedisClient;
 import ru.mai.lessons.rpks.repository.impl.DataBaseReader;
 import ru.mai.lessons.rpks.repository.impl.RulesUpdaterThread;
-import ru.mai.lessons.rpks.kafka.dispatchers.*;
 
 import java.io.Closeable;
 import java.io.IOException;

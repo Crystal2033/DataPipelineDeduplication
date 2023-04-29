@@ -1,7 +1,7 @@
-package ru.mai.lessons.rpks.ServiceDeduplication;
+package ru.mai.lessons.rpks.services;
 
 import lombok.extern.slf4j.Slf4j;
-import ru.mai.lessons.rpks.ServiceDeduplication.interfaces.Service;
+import ru.mai.lessons.rpks.services.interfaces.Service;
 import ru.mai.lessons.rpks.configs.ConfigurationReader;
 import ru.mai.lessons.rpks.configs.interfaces.ConfigReader;
 
