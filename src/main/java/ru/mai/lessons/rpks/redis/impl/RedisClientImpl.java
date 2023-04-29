@@ -3,7 +3,6 @@ package ru.mai.lessons.rpks.redis.impl;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
 import redis.clients.jedis.JedisPooled;
 import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.redis.interfaces.RedisClient;
@@ -20,7 +19,7 @@ public class RedisClientImpl implements RedisClient {
 
     private JedisPooled jedis;
 
-    private boolean enabledAudit = false;
+    private boolean enabledAudit = true;
 
     private static final String AUDIT_CHANNEL = "audit";
 
@@ -59,15 +58,16 @@ public class RedisClientImpl implements RedisClient {
     }
 
     @Override
-    public Message getMessageByStringAndTryToInsertInRedis(String stringMessage, String key, long expireTimeInSec) {
-        if(getJedis().exists(key)){
+    public synchronized Message getMessageByStringAndTryToInsertInRedis(String stringMessage, String key, long expireTimeInSec) {
+        if (getJedis().exists(key)) {
+            log.info("Key {} exists in redis! Message {}", key, stringMessage);
             return Message.builder()
                     .value(stringMessage)
                     .isDuplicate(true)
                     .build();
-        }
-        else{
-            getJedis().setex(key, expireTimeInSec ,stringMessage);
+        } else {
+            log.info("Set time to live {} seconds by key {} and message {}", expireTimeInSec, key, stringMessage);
+            getJedis().setex(key, expireTimeInSec, stringMessage);
             return Message.builder()
                     .value(stringMessage)
                     .isDuplicate(false)

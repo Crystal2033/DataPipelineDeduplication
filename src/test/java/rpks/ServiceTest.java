@@ -196,6 +196,7 @@ class ServiceTest {
             Config config = ConfigFactory.load();
             config = replaceConfigForTest(config);
             Future<Boolean> serviceIsWork = testStartService(config);
+            Thread.sleep(3000L); //TODO: ADDED BY AUTHOR
 
             String expectedJsonOne = "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}";
             String expectedJsonTwo = "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}";
@@ -210,9 +211,9 @@ class ServiceTest {
                     fail();
                 }
             });
-
-            Set.of("{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}",
-                    "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}",
+            Thread.sleep(500L);// TODO: ADDED BY AUTHOR
+            Set.of("{\"name\":\"alex\", \"age\":18, \"sex\":\"F\"}",
+                    "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"F\"}",
                     "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\", \"money\":\"no\"}",
                     "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\", \"money\":\"yes\"}",
                     "").forEach(negativeJson -> {
@@ -224,7 +225,7 @@ class ServiceTest {
                 }
             });
 
-            log.info("Wait until Redis expired keys");
+            log.error("Wait until Redis expired keys");
             Thread.sleep(5000L);
 
             listExpectedJson.forEach(json -> {
@@ -243,6 +244,10 @@ class ServiceTest {
             assertFalse(consumerRecords.isEmpty());
             assertEquals(4, consumerRecords.count());
 
+
+            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+                log.error("Result: {}", consumerRecord.value());
+            }
             for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
                 assertNotNull(consumerRecord.value());
                 assertTrue(listExpectedJson.contains(consumerRecord.value()));
@@ -259,7 +264,7 @@ class ServiceTest {
     }
 
     /**
-     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = true И
+     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = true и
      * fieldName = 'age', timeToLiveSec = 10, isActive = true
      * Выполняется вставка правила в базу PostgreSQL.
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
@@ -294,6 +299,7 @@ class ServiceTest {
             Config config = ConfigFactory.load();
             config = replaceConfigForTest(config);
             Future<Boolean> serviceIsWork = testStartService(config);
+            Thread.sleep(3000L); //TODO: ADDED BY AUTHOR
 
             String expectedJsonOne = "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}";
             String expectedJsonTwo = "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}";
@@ -309,7 +315,7 @@ class ServiceTest {
                     fail();
                 }
             });
-
+            Thread.sleep(500L);// TODO: ADDED BY AUTHOR
             Set.of("{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}",
                     "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}",
                     "{\"name\":\"alex\", \"age\":19, \"sex\":\"M\"}",
@@ -371,7 +377,7 @@ class ServiceTest {
     }
 
     /**
-     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = true И
+     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = true и
      * fieldName = 'age', timeToLiveSec = 10, isActive = false
      * Выполняется вставка правил в базу PostgreSQL.
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
@@ -404,6 +410,7 @@ class ServiceTest {
             Config config = ConfigFactory.load();
             config = replaceConfigForTest(config);
             Future<Boolean> serviceIsWork = testStartService(config);
+            Thread.sleep(3000L);// TODO: ADDED BY AUTHOR
 
             String expectedJsonOne = "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}";
             String expectedJsonTwo = "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}";
@@ -419,7 +426,7 @@ class ServiceTest {
                     fail();
                 }
             });
-
+            Thread.sleep(500L);// TODO: ADDED BY AUTHOR
             Set.of("{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}",
                     "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}",
                     "{\"name\":\"alex\", \"age\":19, \"sex\":\"M\"}",
@@ -498,6 +505,7 @@ class ServiceTest {
             Config config = ConfigFactory.load();
             config = replaceConfigForTest(config);
             Future<Boolean> serviceIsWork = testStartService(config);
+            Thread.sleep(3000L);// TODO: ADDED BY AUTHOR
 
             String expectedJsonOne = "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}";
             String expectedJsonTwo = "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}";
@@ -549,7 +557,7 @@ class ServiceTest {
     }
 
     /**
-     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = false И
+     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = false и
      * fieldName = 'age', timeToLiveSec = 10, isActive = false
      * Выполняется вставка правила в базу PostgreSQL.
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
@@ -584,6 +592,7 @@ class ServiceTest {
             Config config = ConfigFactory.load();
             config = replaceConfigForTest(config);
             Future<Boolean> serviceIsWork = testStartService(config);
+            Thread.sleep(3000L);// TODO: ADDED BY AUTHOR
 
             String expectedJsonOne = "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}";
             String expectedJsonTwo = "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}";

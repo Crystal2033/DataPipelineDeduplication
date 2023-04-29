@@ -3,21 +3,17 @@ package ru.mai.lessons.rpks.kafka.dispatchers;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONException;
 import org.json.JSONObject;
-import ru.mai.lessons.rpks.exceptions.UndefinedOperationException;
 import ru.mai.lessons.rpks.kafka.impl.KafkaWriterImpl;
 import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
-import ru.mai.lessons.rpks.redis.interfaces.RedisClient;
-import ru.mai.lessons.rpks.repository.impl.RulesUpdaterThread;
 import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.model.Rule;
+import ru.mai.lessons.rpks.redis.interfaces.RedisClient;
+import ru.mai.lessons.rpks.repository.impl.RulesUpdaterThread;
 
-import javax.swing.text.html.Option;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static ru.mai.lessons.rpks.constants.MainNames.*;
 
 @Slf4j
 public class DeduplicationDispatcher implements DispatcherKafka {
@@ -25,6 +21,7 @@ public class DeduplicationDispatcher implements DispatcherKafka {
     private ConcurrentHashMap<String, List<Rule>> rulesConcurrentMap;
     private final KafkaWriterImpl kafkaWriter;
     private final RedisClient redis;
+
     public DeduplicationDispatcher(KafkaWriterImpl kafkaWriter, RedisClient redis, RulesUpdaterThread updaterRulesThread) {
         this.updaterRulesThread = updaterRulesThread;
         updateRules();
@@ -39,7 +36,7 @@ public class DeduplicationDispatcher implements DispatcherKafka {
     }
 
     @Override
-    public void actionWithMessage(String msg) throws UndefinedOperationException {
+    public void actionWithMessage(String msg) {
         sendMessageIfCompatibleWithDBRules(msg);
     }
 
@@ -47,108 +44,76 @@ public class DeduplicationDispatcher implements DispatcherKafka {
         updaterRulesThread.stopReadingDataBase();
     }
 
-
-    private boolean checkField(String fieldName, JSONObject jsonObject) throws UndefinedOperationException {
-//        if (rulesConcurrentMap.containsKey(fieldName)) {
-//            String userValue = jsonObject.get(fieldName).toString();
-//            List<Rule> rules = rulesConcurrentMap.get(fieldName);
-//            for (var rule : rules) {
-//                if (!isCompatibleWithRule(rule.getFilterFunctionName(), rule.getFilterValue(), userValue)) {
-//                    return false;
-//                }
-//            }
-//            return true;
-//        }
-//        return true;
-        return true;
-    }
-
-    private void sendMessageIfCompatibleWithDBRules(String checkingMessage) throws UndefinedOperationException {
+    private void sendMessageIfCompatibleWithDBRules(String checkingMessage) {
         updateRules();
-        log.info("Size of rules: {}", rulesConcurrentMap.size());
         if (rulesConcurrentMap.size() == 0) {
-            kafkaWriter.processing(getMessage(checkingMessage, true));
-            return;
+            kafkaWriter.processing(getMessage(checkingMessage, false));
+        } else {
+            Optional<Message> optionalMessage = Optional.ofNullable(checkForDuplicateAndGetMessageByString(checkingMessage));
+            optionalMessage.ifPresent(kafkaWriter::processing);
         }
-        kafkaWriter.processing(checkForDuplicateAndGetMessageByString(checkingMessage));
+
     }
 
-    private String getKeyByFields(String checkingMessage){
+    private String getKeyByFields(String checkingMessage) {
         StringBuilder keyBuilder = new StringBuilder();
         try {
             JSONObject jsonObject = new JSONObject(checkingMessage);
-
-            if(rulesConcurrentMap.containsKey(NAME_STRING_VALUE)){
-                appendNewValueInKey(keyBuilder, jsonObject.get(NAME_STRING_VALUE).toString());
+            for (String key : jsonObject.keySet()) {
+                if (rulesConcurrentMap.containsKey(key)) {
+                    appendNewValueInKey(keyBuilder, jsonObject.get(key).toString());
+                }
             }
-            if(rulesConcurrentMap.containsKey(AGE_STRING_VALUE)){
-                appendNewValueInKey(keyBuilder, jsonObject.get(AGE_STRING_VALUE).toString());
-            }
-            if(rulesConcurrentMap.containsKey(SEX_STRING_VALUE)){
-                appendNewValueInKey(keyBuilder, jsonObject.get(SEX_STRING_VALUE).toString());
-            }
+        } catch (JSONException ex) {
+            log.error("Parsing json message {} error: ", checkingMessage, ex);
+            return null;
         }
-        catch (JSONException ex) {
-            log.error("Parsing json error: ", ex);
-        }
-        return keyBuilder.toString();// TODO: probably null;
+        return keyBuilder.toString();
     }
 
 
-
-    private void appendNewValueInKey(StringBuilder keyBuilder, String newValue){
-        if(!keyBuilder.isEmpty()){
+    private void appendNewValueInKey(StringBuilder keyBuilder, String newValue) {
+        if (!keyBuilder.isEmpty()) {
             keyBuilder.append(":");
         }
         keyBuilder.append(newValue);
     }
-    private Message checkForDuplicateAndGetMessageByString(String checkingMessage){
+
+    private Message checkForDuplicateAndGetMessageByString(String checkingMessage) {
         long expireTimeInSec = getTotalExpireTimeByExistingRules();
-        return redis.getMessageByStringAndTryToInsertInRedis(checkingMessage, getKeyByFields(checkingMessage), expireTimeInSec);
-    }
-
-    private long getTotalExpireTimeByExistingRules(){
-        long expireTimeInSec = 0;
-
-        List<Rule> rules = rulesConcurrentMap.get(NAME_STRING_VALUE);
-        expireTimeInSec = getMaxExpireTimeByField(rules, expireTimeInSec);
-
-        rules = rulesConcurrentMap.get(AGE_STRING_VALUE);
-        expireTimeInSec = getMaxExpireTimeByField(rules, expireTimeInSec);
-
-        rules = rulesConcurrentMap.get(SEX_STRING_VALUE);
-        expireTimeInSec = getMaxExpireTimeByField(rules, expireTimeInSec);
-
-        return expireTimeInSec;
-
-    }
-
-    private long getMaxExpireTimeByField(List<Rule> rules, long currentExpireTime){
-        if(rules != null){
-            return Math.max(currentExpireTime, rules.stream().max(
-                    Comparator.comparing(Rule::getTimeToLiveSec)).get().getTimeToLiveSec()
-            );
+        Optional<String> optionalRedisKey = Optional.ofNullable(getKeyByFields(checkingMessage));
+        if (optionalRedisKey.isPresent()) {
+            Message message = redis.getMessageByStringAndTryToInsertInRedis(checkingMessage, optionalRedisKey.get(), expireTimeInSec);
+            return message;
+        } else {
+            return null;
         }
-        else{
+
+    }
+
+    private long getTotalExpireTimeByExistingRules() {
+        long expireTimeInSec = 0;
+        for (var listOfRules : rulesConcurrentMap.values()) {
+            expireTimeInSec = getMaxExpireTimeByField(listOfRules, expireTimeInSec);
+        }
+        return expireTimeInSec;
+    }
+
+    private long getMaxExpireTimeByField(List<Rule> rules, long currentExpireTime) {
+        if (rules != null) {
+            Optional<Rule> ruleWithMaxExpireTime = rules.stream()
+                    .max(Comparator.comparing(Rule::getTimeToLiveSec));
+            return Math.max(currentExpireTime,
+                    ruleWithMaxExpireTime.isEmpty() ? 0 : ruleWithMaxExpireTime.get().getTimeToLiveSec());
+        } else {
             return currentExpireTime;
         }
     }
-    private boolean isCompatibleWithRule(String operation, String expected, String userValue) throws UndefinedOperationException {
-//        log.info("operation={}, expected={}, userValue={}", operation, expected, userValue);
-//        return switch (operation) {
-//            case "equals" -> expected.equals(userValue);
-//            case "not_equals" -> !expected.equals(userValue);
-//            case "contains" -> userValue.contains(expected);
-//            case "not_contains" -> !userValue.contains(expected);
-//            default -> throw new UndefinedOperationException("Operation was not found.", operation);
-//        };
-        return false;
-    }
 
-    private Message getMessage(String value, boolean isCompatible) {
+    private Message getMessage(String value, boolean isDuplicate) {
         return Message.builder()
                 .value(value)
-                .isDuplicate(isCompatible)
+                .isDuplicate(isDuplicate)
                 .build();
     }
 }

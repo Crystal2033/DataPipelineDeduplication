@@ -48,16 +48,12 @@ public class RulesUpdaterThread implements Runnable {
             try {
                 Rule[] rules = dataBaseReader.readRulesFromDB();
                 insertNewRulesInMap(rules);
-                log.info("New rules have been inserted.");
-                log.info("Is connected to database: {}", dataBaseReader.isConnectedToDataBase());
                 Thread.sleep(configForSleep.getConfig("application")
                         .getLong("updateIntervalSec") * 100);
 
             } catch (InterruptedException e) {
                 log.error("Trouble with sleep of thread. " + e);
                 Thread.currentThread().interrupt();
-            } catch (SQLException e) {
-                log.error("Bad connection to database!", e);
             }
         }
     }

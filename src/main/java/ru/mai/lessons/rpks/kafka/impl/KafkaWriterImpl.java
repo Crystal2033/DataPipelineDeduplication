@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 public class KafkaWriterImpl implements KafkaWriter {
     private final String topic;
     private final String bootstrapServers;
-    private KafkaProducer<String, String> kafkaProducer = null;
+    private KafkaProducer<String, String> kafkaProducer;
 
     @Override
     public void processing(Message message) {
@@ -37,7 +37,7 @@ public class KafkaWriterImpl implements KafkaWriter {
             response = kafkaProducer.send(new ProducerRecord<>(topic, message.getValue()));
             Optional.ofNullable(response).ifPresent(rsp -> {
                 try {
-                    log.info("Message send {}", rsp.get());
+                    log.info("Message {} send {}", message.getValue(), rsp.get());
                 } catch (InterruptedException | ExecutionException e) {
                     log.error("Error sending message ", e);
                     Thread.currentThread().interrupt();
@@ -47,7 +47,6 @@ public class KafkaWriterImpl implements KafkaWriter {
     }
 
     private void initKafkaReader() {
-        log.info("Start write message in kafka topic {}", topic);
         kafkaProducer = new KafkaProducer<>(
                 Map.of(
                         ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,

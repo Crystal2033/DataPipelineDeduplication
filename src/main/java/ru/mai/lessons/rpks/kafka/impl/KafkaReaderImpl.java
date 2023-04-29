@@ -10,10 +10,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import ru.mai.lessons.rpks.kafka.interfaces.KafkaReader;
-import ru.mai.lessons.rpks.exceptions.UndefinedOperationException;
+import ru.mai.lessons.rpks.kafka.dispatchers.DeduplicationDispatcher;
 import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
-import ru.mai.lessons.rpks.kafka.dispatchers.*;
+import ru.mai.lessons.rpks.kafka.interfaces.KafkaReader;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -67,7 +66,7 @@ public class KafkaReaderImpl implements KafkaReader {
                         isExit = true;
                     } else {
                         log.info("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
-                        executorService.execute(() -> sendToDeduplicator(consumerRecord.value()));
+                        executorService.execute(() -> sendForDeduplication(consumerRecord.value()));
                     }
                 }
             }
@@ -75,7 +74,7 @@ public class KafkaReaderImpl implements KafkaReader {
     }
 
     private KafkaConsumer<String, String> initKafkaConsumer() {
-        log.info("Start reading kafka topic {}", topic);
+        //log.info("Start reading kafka topic {}", topic);
         return new KafkaConsumer<>(
                 Map.of(
                         ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers,
@@ -87,14 +86,7 @@ public class KafkaReaderImpl implements KafkaReader {
         );
     }
 
-    private void sendToDeduplicator(String msg) {
-        try {
-            log.info("Before action with message {}", msg);
-            dispatcherKafka.actionWithMessage(msg);
-            log.info("After action with message {}", msg);
-        } catch (UndefinedOperationException ex) {
-            log.error("The operation {} not found.", ex.getOperation());
-        }
-
+    private void sendForDeduplication(String msg) {
+        dispatcherKafka.actionWithMessage(msg);
     }
 }

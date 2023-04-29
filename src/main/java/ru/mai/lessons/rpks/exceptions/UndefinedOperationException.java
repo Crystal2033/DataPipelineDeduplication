@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class UndefinedOperationException extends Exception{
+public class UndefinedOperationException extends Exception {
     private final String msg;
     private final String operation;
 }

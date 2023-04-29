@@ -9,8 +9,8 @@ import org.jooq.DSLContext;
 import org.jooq.PlainSQL;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
-import ru.mai.lessons.rpks.repository.interfaces.DbReader;
 import ru.mai.lessons.rpks.model.Rule;
+import ru.mai.lessons.rpks.repository.interfaces.DbReader;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -72,14 +72,15 @@ public class DataBaseReader implements DbReader, AutoCloseable {
                 .from(additionalDBConfig.getString("table_name"))
                 .where(field(additionalDBConfig.getString("deduplication_id_column_name"))
                         .eq(additionalDBConfig.getInt(
-                                additionalDBConfig.getString("deduplication_id_column_name"))))
+                                additionalDBConfig.getString("deduplication_id_column_name")))
+                        .and(field("is_active").eq(true)))
                 .fetch()
                 .stream()
                 .map(note -> Rule.builder()
                         .deduplicationId((Long) note.get("deduplication_id"))
                         .ruleId((Long) note.get("rule_id"))
                         .fieldName(note.get("field_name").toString())
-                        .timeToLiveSec((Long)note.get("time_to_live_sec"))
+                        .timeToLiveSec((Long) note.get("time_to_live_sec"))
                         .isActive((Boolean) note.get("is_active"))
                         .build())
                 .toList().toArray(new Rule[0]);

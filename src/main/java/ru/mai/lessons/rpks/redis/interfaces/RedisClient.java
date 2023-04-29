@@ -10,5 +10,5 @@ public interface RedisClient {
      Если нет, значит вставляем это значение в Redis, устанавливаем время жизни
      сообщения по правилу из PostgreSQL и проставляем deduplicationState = true.
      Реализация RedisClient должна работать в RuleProcessor.
-    */
+     */
 }
