@@ -78,7 +78,7 @@ class ServiceTest {
 
     private final Service serviceDeduplication = new ServiceDeduplication();
 
-    @BeforeEach
+    @AfterEach
     void clearRedis() {
         JedisPooled jedisPooled = createRedisClient();
         jedisPooled.keys("*").forEach(jedisPooled::del);
@@ -244,7 +244,7 @@ class ServiceTest {
                 }
             });
 
-            Thread.sleep(5000L);
+            Thread.sleep(1000L);
             Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
@@ -357,7 +357,7 @@ class ServiceTest {
                 }
             });
 
-            Thread.sleep(6000L);
+            Thread.sleep(1000L);
             Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
@@ -455,7 +455,7 @@ class ServiceTest {
                 }
             });
 
-            Thread.sleep(5000L);
+            Thread.sleep(1000L);
             Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
@@ -536,7 +536,7 @@ class ServiceTest {
                 }
             });
 
-            Thread.sleep(5000L);
+            Thread.sleep(1000L);
             Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
@@ -635,7 +635,7 @@ class ServiceTest {
                 }
             });
 
-            Thread.sleep(5000L);
+            Thread.sleep(1000L);
             Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);

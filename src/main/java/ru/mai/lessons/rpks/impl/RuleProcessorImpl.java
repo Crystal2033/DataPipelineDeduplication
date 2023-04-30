@@ -1,15 +1,15 @@
 package ru.mai.lessons.rpks.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jooq.tools.json.JSONObject;
-import org.jooq.tools.json.JSONParser;
-import org.jooq.tools.json.ParseException;
 import ru.mai.lessons.rpks.RedisClient;
 import ru.mai.lessons.rpks.RuleProcessor;
 import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.model.Rule;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -28,14 +28,12 @@ public final class RuleProcessorImpl implements RuleProcessor {
 
         List<String> activeFieldNames = getSortedActiveFieldNamesFromRules(rules);
         if (activeFieldNames.isEmpty()) {
-            //log.info("No active filed");
             message.setDeduplicationState(true);
             return message;
         }
 
         List<String> activeFieldValues = getActiveFieldValuesFromMessage(message, activeFieldNames);
         if (activeFieldValues.isEmpty()) {
-            //log.info("Message is empty!");
             message.setDeduplicationState(false);
             return message;
         }
@@ -46,7 +44,6 @@ public final class RuleProcessorImpl implements RuleProcessor {
         String combinedActiveFieldValues = combineStringListToString(activeFieldValues);
 
         if (!redisClient.containsKey(combinedActiveFieldValues)) {
-            //log.info("message {} is not in redis", message.getValue());
             message.setDeduplicationState(true);
             redisClient.writeData(combinedActiveFieldValues, combinedActiveFieldNames, secondsToLive);
             return message;
@@ -54,7 +51,6 @@ public final class RuleProcessorImpl implements RuleProcessor {
 
         String data = redisClient.getData(combinedActiveFieldValues);
         if (data.equals(combinedActiveFieldNames)) {
-            //log.info("message {} already in redis", message.getValue());
             message.setDeduplicationState(false);
         } else {
             log.info("update value of message {} in redis", message.getValue());
@@ -82,13 +78,11 @@ public final class RuleProcessorImpl implements RuleProcessor {
 
     private List<String> getActiveFieldValuesFromMessage(Message message, List<String> activeFieldNames) {
         try {
-            Object object = new JSONParser().parse(message.getValue());
-            JSONObject jsonObject = (JSONObject) object;
-
+            ObjectNode object = new ObjectMapper().readValue(message.getValue(), ObjectNode.class);
             return activeFieldNames.stream()
-                    .map(fieldName -> jsonObject.get(fieldName).toString())
+                    .map(fieldName -> object.get(fieldName).toString())
                     .toList();
-        } catch (ParseException e) {
+        } catch (IOException e) {
             return new ArrayList<>();
         }
     }

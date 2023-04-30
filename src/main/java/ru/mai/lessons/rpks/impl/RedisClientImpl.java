@@ -26,7 +26,6 @@ public class RedisClientImpl implements RedisClient {
 
     @Override
     public void writeData(String key, String value, long seconds) {
-        //log.info("Put {}, {} for {}", key, value, seconds);
         getJedis().set(key, value);
         getJedis().expire(key, seconds);
     }

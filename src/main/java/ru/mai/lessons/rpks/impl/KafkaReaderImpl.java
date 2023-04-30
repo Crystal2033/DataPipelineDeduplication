@@ -59,20 +59,12 @@ public final class KafkaReaderImpl implements KafkaReader {
     }
 
     private void tryToSubmit() {
-        while (!isExit) {
+        while (true) {
             ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
             for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                if (consumerRecord.value().equals("$exit")) {
-                    isExit = true;
-                } else {
-                    log.info("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
-                    kafkaWriter.processing(new Message(consumerRecord.value()));
-                }
+                log.info("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
+                kafkaWriter.processing(new Message(consumerRecord.value()));
             }
         }
-        log.info("Read is done!");
-
-        this.kafkaConsumer.close();
-        this.executor.shutdown();
     }
 }
