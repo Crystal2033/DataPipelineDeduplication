@@ -35,22 +35,6 @@ public class DataBaseReader implements DbReader, AutoCloseable {
 
     private Connection dataSourceConnection;
 
-    private void initHikariConfig() {
-        config.setJdbcUrl(url);
-        config.setUsername(userName);
-        config.setPassword(password);
-        config.setDriverClassName(driver);
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-    }
-
-    private void initDataSourceAndDSLContext() {
-        dataSource = new HikariDataSource(config);
-        dslContext = DSL.using(dataSource, SQLDialect.POSTGRES);
-    }
-
-
     public boolean connectToDataBase() throws SQLException {
         initHikariConfig();
         if (dataSource == null) {
@@ -68,27 +52,56 @@ public class DataBaseReader implements DbReader, AutoCloseable {
 
     @Override
     public Rule[] readRulesFromDB() {
-        return dslContext.select()
-                .from(additionalDBConfig.getString("table_name"))
-                .where(field(additionalDBConfig.getString("deduplication_id_column_name"))
-                        .eq(additionalDBConfig.getInt(
-                                additionalDBConfig.getString("deduplication_id_column_name")))
-                        .and(field("is_active").eq(true)))
-                .fetch()
-                .stream()
-                .map(note -> Rule.builder()
-                        .deduplicationId((Long) note.get("deduplication_id"))
-                        .ruleId((Long) note.get("rule_id"))
-                        .fieldName(note.get("field_name").toString())
-                        .timeToLiveSec((Long) note.get("time_to_live_sec"))
-                        .isActive((Boolean) note.get("is_active"))
-                        .build())
-                .toList().toArray(new Rule[0]);
+        try{
+            if(isConnectedToDataBase()){
+                return dslContext.select()
+                        .from(additionalDBConfig.getString("table_name"))
+                        .where(field(additionalDBConfig.getString("deduplication_id_column_name"))
+                                .eq(additionalDBConfig.getInt(
+                                        additionalDBConfig.getString("deduplication_id_column_name")))
+                                .and(field("is_active").eq(true)))
+                        .fetch()
+                        .stream()
+                        .map(note -> Rule.builder()
+                                .deduplicationId((Long) note.get("deduplication_id"))
+                                .ruleId((Long) note.get("rule_id"))
+                                .fieldName(note.get("field_name").toString())
+                                .timeToLiveSec((Long) note.get("time_to_live_sec"))
+                                .isActive((Boolean) note.get("is_active"))
+                                .build())
+                        .toList().toArray(new Rule[0]);
+            }
+        }
+        catch(SQLException ex){
+            log.error(ex.getMessage(), ex);
+        }
+        return new Rule[0];
     }
 
     @Override
-    public void close() throws SQLException {
-        dataSourceConnection.close();
+    public void close() {
+        try {
+            dataSourceConnection.close();
+        } catch (SQLException e) {
+            log.error(e.getMessage(), e);
+        }
         dataSource.close();
     }
+
+    private void initHikariConfig() {
+        config.setJdbcUrl(url);
+        config.setUsername(userName);
+        config.setPassword(password);
+        config.setDriverClassName(driver);
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+    }
+
+    private void initDataSourceAndDSLContext() {
+        dataSource = new HikariDataSource(config);
+        dslContext = DSL.using(dataSource, SQLDialect.POSTGRES);
+    }
+
+
 }

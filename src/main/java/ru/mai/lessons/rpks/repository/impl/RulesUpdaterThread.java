@@ -52,6 +52,7 @@ public class RulesUpdaterThread implements Runnable {
             } catch (InterruptedException e) {
                 log.error("Trouble with sleep of thread. " + e);
                 Thread.currentThread().interrupt();
+                return;
             }
         }
     }

@@ -35,8 +35,6 @@ public class ServiceDeduplication implements Service {
         outerConfig = config;
         try (DataBaseReader dataBaseReader = initExistingDBReader(outerConfig.getConfig("db"))) {
             connectToDBAndWork(dataBaseReader);
-        } catch (SQLException e) {
-            log.error("There is a problem with initializing database.");
         }
     }
 
