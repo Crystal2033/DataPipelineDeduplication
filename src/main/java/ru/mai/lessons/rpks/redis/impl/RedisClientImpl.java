@@ -30,7 +30,8 @@ public class RedisClientImpl implements RedisClient {
 
         } else {
             log.info("Set time to live {} seconds by key {} and message {}", expireTimeInSec, key, message.getValue());
-            getJedis().setex(key, expireTimeInSec, ""); //we don`t need the value of message, only key
+            getJedis().set(key, "");
+            getJedis().expire(key, expireTimeInSec);
             message.setDuplicate(false);
         }
     }
