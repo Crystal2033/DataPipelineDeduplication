@@ -211,7 +211,7 @@ class ServiceTest {
                     fail();
                 }
             });
-            Thread.sleep(500L);// TODO: ADDED BY AUTHOR
+            //Thread.sleep(500L);// TODO: ADDED BY AUTHOR
             Set.of("{\"name\":\"alex\", \"age\":18, \"sex\":\"F\"}",
                     "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"F\"}",
                     "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\", \"money\":\"no\"}",
@@ -225,7 +225,7 @@ class ServiceTest {
                 }
             });
 
-            log.error("Wait until Redis expired keys");
+            log.info("Wait until Redis expired keys");
             Thread.sleep(5000L);
 
             listExpectedJson.forEach(json -> {
@@ -241,13 +241,14 @@ class ServiceTest {
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
 
+//            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+//                log.error("Result: {}", consumerRecord.value());
+//            }
             assertFalse(consumerRecords.isEmpty());
             assertEquals(4, consumerRecords.count());
 
 
-            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                log.error("Result: {}", consumerRecord.value());
-            }
+
             for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
                 assertNotNull(consumerRecord.value());
                 assertTrue(listExpectedJson.contains(consumerRecord.value()));
@@ -315,7 +316,7 @@ class ServiceTest {
                     fail();
                 }
             });
-            Thread.sleep(1000L);// TODO: ADDED BY AUTHOR
+            //Thread.sleep(500L);// TODO: ADDED BY AUTHOR
             Set.of("{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}",
                     "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}",
                     "{\"name\":\"alex\", \"age\":19, \"sex\":\"M\"}",
@@ -426,7 +427,7 @@ class ServiceTest {
                     fail();
                 }
             });
-            Thread.sleep(500L);// TODO: ADDED BY AUTHOR
+            //Thread.sleep(500L);// TODO: ADDED BY AUTHOR
             Set.of("{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}",
                     "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}",
                     "{\"name\":\"alex\", \"age\":19, \"sex\":\"M\"}",

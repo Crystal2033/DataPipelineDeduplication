@@ -47,7 +47,7 @@ public class RulesUpdaterThread implements Runnable {
                 Rule[] rules = dataBaseReader.readRulesFromDB();
                 insertNewRulesInMap(rules);
                 Thread.sleep(configForSleep.getConfig("application")
-                        .getLong("updateIntervalSec") * 100);
+                        .getLong("updateIntervalSec") * 1000);
 
             } catch (InterruptedException e) {
                 log.error("Trouble with sleep of thread. " + e);

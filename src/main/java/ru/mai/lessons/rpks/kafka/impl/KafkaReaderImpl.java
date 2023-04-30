@@ -65,8 +65,9 @@ public class KafkaReaderImpl implements KafkaReader {
                         }
                         isExit = true;
                     } else {
-                        log.info("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
+                        //log.info("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
                         executorService.execute(() -> sendForDeduplication(consumerRecord.value()));
+                        //sendForDeduplication(consumerRecord.value());
                     }
                 }
             }

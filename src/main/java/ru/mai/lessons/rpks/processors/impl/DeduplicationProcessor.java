@@ -24,7 +24,7 @@ public class DeduplicationProcessor implements RuleProcessor {
         try {
             sendIfNotDuplicateAndSetMessageState(message, rules);
         } catch (JSONException ex) {
-            log.error("Parsing json message {} error: ", message.getValue(), ex);
+            //log.error("Parsing json message {} error: ", message.getValue(), ex);
             return null;
         }
         return message;
