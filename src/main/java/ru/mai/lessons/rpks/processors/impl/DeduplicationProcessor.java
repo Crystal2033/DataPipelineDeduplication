@@ -1,4 +1,4 @@
-package ru.mai.lessons.rpks.processors.interfaces.impl;
+package ru.mai.lessons.rpks.processors.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

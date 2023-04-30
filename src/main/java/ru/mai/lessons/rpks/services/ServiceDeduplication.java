@@ -4,7 +4,7 @@ import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import ru.mai.lessons.rpks.dispatchers.DeduplicationDispatcher;
 import ru.mai.lessons.rpks.processors.interfaces.RuleProcessor;
-import ru.mai.lessons.rpks.processors.interfaces.impl.DeduplicationProcessor;
+import ru.mai.lessons.rpks.processors.impl.DeduplicationProcessor;
 import ru.mai.lessons.rpks.services.interfaces.Service;
 import ru.mai.lessons.rpks.kafka.impl.KafkaReaderImpl;
 import ru.mai.lessons.rpks.kafka.impl.KafkaWriterImpl;
