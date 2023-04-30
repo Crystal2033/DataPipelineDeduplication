@@ -244,7 +244,7 @@ class ServiceTest {
                 }
             });
 
-            Thread.sleep(1000L);
+            Thread.sleep(2000L);
             Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
