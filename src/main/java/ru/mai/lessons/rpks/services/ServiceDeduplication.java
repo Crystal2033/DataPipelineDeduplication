@@ -3,6 +3,8 @@ package ru.mai.lessons.rpks.services;
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import ru.mai.lessons.rpks.dispatchers.DeduplicationDispatcher;
+import ru.mai.lessons.rpks.processors.interfaces.RuleProcessor;
+import ru.mai.lessons.rpks.processors.interfaces.impl.DeduplicationProcessor;
 import ru.mai.lessons.rpks.services.interfaces.Service;
 import ru.mai.lessons.rpks.kafka.impl.KafkaReaderImpl;
 import ru.mai.lessons.rpks.kafka.impl.KafkaWriterImpl;
@@ -93,8 +95,9 @@ public class ServiceDeduplication implements Service {
 
                 RedisClient redisClient = new RedisClientImpl(outerConfig.getConfig("redis").getString("host"),
                         outerConfig.getConfig("redis").getInt("port"));
+                RuleProcessor ruleProcessor = new DeduplicationProcessor(redisClient);
 
-                DispatcherKafka filterDispatcher = new DeduplicationDispatcher(kafkaWriter, redisClient, rulesDBUpdaterThread);
+                DispatcherKafka filterDispatcher = new DeduplicationDispatcher(kafkaWriter, ruleProcessor, rulesDBUpdaterThread);
 
 
                 executorService.execute(rulesDBUpdaterThread);

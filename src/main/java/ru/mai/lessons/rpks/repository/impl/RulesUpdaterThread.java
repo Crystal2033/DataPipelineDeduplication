@@ -38,7 +38,6 @@ public class RulesUpdaterThread implements Runnable {
             myList.add(rule);
             rulesConcurrentMap.put(rule.getFieldName(), myList);
         }
-        rulesConcurrentMap.forEach((key, value1) -> log.debug(value1.toString()));
     }
 
     @Override

@@ -1,10 +1,14 @@
-package ru.mai.lessons.rpks;
+package ru.mai.lessons.rpks.processors.interfaces;
 
 import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.model.Rule;
 
+import java.util.List;
+import java.util.Map;
+
+@FunctionalInterface
 public interface RuleProcessor {
-    public Message processing(Message message, Rule[] rules);
+    public Message processing(Message message, Map<String, List<Rule>> rules);
     // применяет правила дедубликации к сообщениям и устанавливает в них deduplicationState значение true,
     // если сообщение удовлетворяет условиям всех правил.
     // Несколько правил объединяются в один ключ, значит если несколько правил,

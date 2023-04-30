@@ -23,21 +23,15 @@ public class RedisClientImpl implements RedisClient {
         return Optional.ofNullable(jedis).orElse(new JedisPooled(host, port));
     }
 
-    @Override
-    public synchronized Message getMessageByStringAndTryToInsertInRedis(String stringMessage, String key, long expireTimeInSec) {
+    public synchronized void sendExpiredMessageIfNotExists(Message message, String key, long expireTimeInSec) {
         if (getJedis().exists(key)) {
-            log.info("Key {} exists in redis! Message {}", key, stringMessage);
-            return Message.builder()
-                    .value(stringMessage)
-                    .isDuplicate(true)
-                    .build();
+            log.info("Key {} exists in redis! Message {}", key, message.getValue());
+            message.setDuplicate(true);
+
         } else {
-            log.info("Set time to live {} seconds by key {} and message {}", expireTimeInSec, key, stringMessage);
-            getJedis().setex(key, expireTimeInSec, stringMessage);
-            return Message.builder()
-                    .value(stringMessage)
-                    .isDuplicate(false)
-                    .build();
+            log.info("Set time to live {} seconds by key {} and message {}", expireTimeInSec, key, message.getValue());
+            getJedis().setex(key, expireTimeInSec, ""); //we don`t need the value of message, only key
+            message.setDuplicate(false);
         }
     }
 }
