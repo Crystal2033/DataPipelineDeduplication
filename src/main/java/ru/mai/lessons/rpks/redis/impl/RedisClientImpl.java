@@ -25,11 +25,11 @@ public class RedisClientImpl implements RedisClient {
 
     public synchronized void sendExpiredMessageIfNotExists(Message message, String key, long expireTimeInSec) {
         if (getJedis().exists(key)) {
-            //log.info("Key {} exists in redis! Message {}", key, message.getValue());
+            log.info("Key {} exists in redis! Message {}", key, message.getValue());
             message.setDuplicate(true);
 
         } else {
-            //log.info("Set time to live {} seconds by key {} and message {}", expireTimeInSec, key, message.getValue());
+            log.info("Set time to live {} seconds by key {} and message {}", expireTimeInSec, key, message.getValue());
             getJedis().set(key, "");
             getJedis().expire(key, expireTimeInSec);
             message.setDuplicate(false);

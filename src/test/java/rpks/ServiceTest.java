@@ -211,7 +211,7 @@ class ServiceTest {
                     fail();
                 }
             });
-            //Thread.sleep(500L);// TODO: ADDED BY AUTHOR
+            Thread.sleep(500L);// TODO: ADDED BY AUTHOR
             Set.of("{\"name\":\"alex\", \"age\":18, \"sex\":\"F\"}",
                     "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"F\"}",
                     "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\", \"money\":\"no\"}",
@@ -241,13 +241,8 @@ class ServiceTest {
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
 
-//            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-//                log.error("Result: {}", consumerRecord.value());
-//            }
             assertFalse(consumerRecords.isEmpty());
             assertEquals(4, consumerRecords.count());
-
-
 
             for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
                 assertNotNull(consumerRecord.value());

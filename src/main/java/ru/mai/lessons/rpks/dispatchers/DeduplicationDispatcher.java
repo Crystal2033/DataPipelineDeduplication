@@ -36,19 +36,13 @@ public class DeduplicationDispatcher implements DispatcherKafka {
 
     @Override
     public void actionWithMessage(String msg) {
-        //sendMessageIfCompatibleWithDBRules(msg);
         updateRules();
         if (rulesConcurrentMap.size() == 0) {
             kafkaWriter.processing(getMessage(msg, false));
         } else {
-//            Optional<Message> optionalMessage = Optional.ofNullable(
-//                    ruleProcessor.processing(getMessage(msg, false), rulesConcurrentMap));
-//            optionalMessage.ifPresent(kafkaWriter::processing);
-            Message optionalMessage =ruleProcessor.processing(getMessage(msg, false), rulesConcurrentMap);
-            if(optionalMessage != null){
-                kafkaWriter.processing(optionalMessage);
-            }
-
+            Optional<Message> optionalMessage = Optional.ofNullable(
+                    ruleProcessor.processing(getMessage(msg, false), rulesConcurrentMap));
+            optionalMessage.ifPresent(kafkaWriter::processing);
         }
     }
 
@@ -56,17 +50,6 @@ public class DeduplicationDispatcher implements DispatcherKafka {
         updaterRulesThread.stopReadingDataBase();
     }
 
-//    private void sendMessageIfCompatibleWithDBRules(String checkingMessage) {
-//        updateRules();
-//        if (rulesConcurrentMap.size() == 0) {
-//            kafkaWriter.processing(getMessage(checkingMessage, false));
-//        } else {
-//            Optional<Message> optionalMessage = Optional.ofNullable(
-//                    ruleProcessor.processing(getMessage(checkingMessage, false), rulesConcurrentMap));
-//            optionalMessage.ifPresent(kafkaWriter::processing);
-//        }
-//
-//    }
 
 
     private Message getMessage(String value, boolean isDuplicate) {

@@ -36,13 +36,13 @@ public class KafkaWriterImpl implements KafkaWriter {
 
             response = kafkaProducer.send(new ProducerRecord<>(topic, message.getValue()));
             Optional.ofNullable(response).ifPresent(rsp -> {
-//                try {
-//                    //log.info("Message {} send {}", message.getValue(), rsp.get());
-//                }
-//                catch (InterruptedException | ExecutionException e) {
-//                    //log.error("Error sending message ", e);
-//                    Thread.currentThread().interrupt();
-//                }
+                try {
+                    log.info("Message {} send {}", message.getValue(), rsp.get());
+                }
+                catch (InterruptedException | ExecutionException e) {
+                    log.error("Error sending message ", e);
+                    Thread.currentThread().interrupt();
+                }
             });
         }
     }
