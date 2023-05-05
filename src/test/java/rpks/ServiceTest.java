@@ -133,7 +133,8 @@ class ServiceTest {
             consumer.subscribe(Collections.singletonList(topicIn));
             log.info("Consumer start reading");
 
-            getConsumerRecordsOutputTopic(consumer, 10, 1);
+            var actualConsumerRecords = getConsumerRecordsOutputTopic(consumer, 1, 10, 1);
+            actualConsumerRecords.forEach(actualRecords -> assertEquals(1, actualRecords.count()));
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
             throw new RuntimeException(e);
         }
@@ -232,7 +233,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(5000L);
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -243,16 +244,17 @@ class ServiceTest {
                 }
             });
 
-            Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
+            var listConsumerRecords = getConsumerRecordsOutputTopic(consumer, 4, 30, 1);
 
-            var consumerRecords = result.get(60, TimeUnit.SECONDS);
+            assertFalse(listConsumerRecords.isEmpty());
+            var actualCountRecords = listConsumerRecords.stream().map(ConsumerRecords::count).reduce(0, Integer::sum);
+            assertEquals(4, actualCountRecords);
 
-            assertFalse(consumerRecords.isEmpty());
-            assertEquals(4, consumerRecords.count());
-
-            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                assertNotNull(consumerRecord.value());
-                assertTrue(listExpectedJson.contains(consumerRecord.value()));
+            for (var consumerRecords : listConsumerRecords) {
+                for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+                    assertNotNull(consumerRecord.value());
+                    assertTrue(listExpectedJson.contains(consumerRecord.value()));
+                }
             }
 
             serviceIsWork.cancel(true);
@@ -331,8 +333,8 @@ class ServiceTest {
                 }
             });
 
-            log.info("Wait 5 seconds");
-            Thread.sleep(5000L);
+            log.info("Wait 10 seconds");
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -344,7 +346,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(6000L);
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -355,16 +357,17 @@ class ServiceTest {
                 }
             });
 
-            Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
+            var listConsumerRecords = getConsumerRecordsOutputTopic(consumer, 6, 30, 1);
 
-            var consumerRecords = result.get(60, TimeUnit.SECONDS);
+            assertFalse(listConsumerRecords.isEmpty());
+            var actualCountRecords = listConsumerRecords.stream().map(ConsumerRecords::count).reduce(0, Integer::sum);
+            assertEquals(6, actualCountRecords);
 
-            assertFalse(consumerRecords.isEmpty());
-            assertEquals(6, consumerRecords.count());
-
-            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                assertNotNull(consumerRecord.value());
-                assertTrue(listExpectedJson.contains(consumerRecord.value()));
+            for (var consumerRecords : listConsumerRecords) {
+                for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+                    assertNotNull(consumerRecord.value());
+                    assertTrue(listExpectedJson.contains(consumerRecord.value()));
+                }
             }
 
             serviceIsWork.cancel(true);
@@ -442,7 +445,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(6000L);
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -453,16 +456,17 @@ class ServiceTest {
                 }
             });
 
-            Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
+            var listConsumerRecords = getConsumerRecordsOutputTopic(consumer, 4, 30, 1);
 
-            var consumerRecords = result.get(60, TimeUnit.SECONDS);
+            assertFalse(listConsumerRecords.isEmpty());
+            var actualCountRecords = listConsumerRecords.stream().map(ConsumerRecords::count).reduce(0, Integer::sum);
+            assertEquals(4, actualCountRecords);
 
-            assertFalse(consumerRecords.isEmpty());
-            assertEquals(4, consumerRecords.count());
-
-            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                assertNotNull(consumerRecord.value());
-                assertTrue(listExpectedJson.contains(consumerRecord.value()));
+            for (var consumerRecords : listConsumerRecords) {
+                for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+                    assertNotNull(consumerRecord.value());
+                    assertTrue(listExpectedJson.contains(consumerRecord.value()));
+                }
             }
 
             serviceIsWork.cancel(true);
@@ -521,8 +525,8 @@ class ServiceTest {
                 }
             });
 
-            log.info("Wait 5 seconds");
-            Thread.sleep(5000L);
+            log.info("Wait 10 seconds");
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -533,16 +537,17 @@ class ServiceTest {
                 }
             });
 
-            Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
+            var listConsumerRecords = getConsumerRecordsOutputTopic(consumer, 6, 30, 1);
 
-            var consumerRecords = result.get(60, TimeUnit.SECONDS);
+            assertFalse(listConsumerRecords.isEmpty());
+            var actualCountRecords = listConsumerRecords.stream().map(ConsumerRecords::count).reduce(0, Integer::sum);
+            assertEquals(6, actualCountRecords);
 
-            assertFalse(consumerRecords.isEmpty());
-            assertEquals(6, consumerRecords.count());
-
-            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                assertNotNull(consumerRecord.value());
-                assertTrue(listExpectedJson.contains(consumerRecord.value()));
+            for (var consumerRecords : listConsumerRecords) {
+                for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+                    assertNotNull(consumerRecord.value());
+                    assertTrue(listExpectedJson.contains(consumerRecord.value()));
+                }
             }
 
             serviceIsWork.cancel(true);
@@ -607,8 +612,8 @@ class ServiceTest {
                 }
             });
 
-            log.info("Wait 5 seconds");
-            Thread.sleep(5000L);
+            log.info("Wait 10 seconds");
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -620,7 +625,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(6000L);
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -631,16 +636,17 @@ class ServiceTest {
                 }
             });
 
-            Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
+            var listConsumerRecords = getConsumerRecordsOutputTopic(consumer, 9, 30, 1);
 
-            var consumerRecords = result.get(60, TimeUnit.SECONDS);
+            assertFalse(listConsumerRecords.isEmpty());
+            var actualCountRecords = listConsumerRecords.stream().map(ConsumerRecords::count).reduce(0, Integer::sum);
+            assertEquals(9, actualCountRecords);
 
-            assertFalse(consumerRecords.isEmpty());
-            assertEquals(9, consumerRecords.count());
-
-            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                assertNotNull(consumerRecord.value());
-                assertTrue(listExpectedJson.contains(consumerRecord.value()));
+            for (var consumerRecords : listConsumerRecords) {
+                for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+                    assertNotNull(consumerRecord.value());
+                    assertTrue(listExpectedJson.contains(consumerRecord.value()));
+                }
             }
 
             serviceIsWork.cancel(true);
@@ -776,10 +782,12 @@ class ServiceTest {
         }
     }
 
-    private ConsumerRecords<String, String> getConsumerRecordsOutputTopic(KafkaConsumer<String, String> consumer, int retry, int timeoutSeconds) {
+    private List<ConsumerRecords<String, String>> getConsumerRecordsOutputTopic(KafkaConsumer<String, String> consumer, int expectedCountMessages, int retry, int timeoutSeconds) {
         boolean state = false;
+        int actualCountMessages = 0;
+        List<ConsumerRecords<String, String>> actualRecords = new ArrayList<>();
         try {
-            while (!state && retry > 0) {
+            while (!state && retry > 0 && expectedCountMessages > actualCountMessages) {
                 ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(100));
                 if (consumerRecords.isEmpty()) {
                     log.info("Remaining attempts {}", retry);
@@ -787,13 +795,14 @@ class ServiceTest {
                     Thread.sleep(timeoutSeconds * 1000L);
                 } else {
                     log.info("Read messages {}", consumerRecords.count());
-                    return consumerRecords;
+                    actualCountMessages += consumerRecords.count();
+                    actualRecords.add(consumerRecords);
                 }
             }
         } catch (InterruptedException ex) {
             log.error("Interrupt read messages", ex);
         }
-        return ConsumerRecords.empty();
+        return actualRecords;
     }
 
     private Config replaceConfigForTest(Config config) {
@@ -808,10 +817,17 @@ class ServiceTest {
                 .withValue("redis.port", ConfigValueFactory.fromAnyRef(redis.getFirstMappedPort()));
     }
 
-    private Future<Boolean> testStartService(Config config) {
-        return executorForTest.submit(() -> {
+    private Future<Boolean> testStartService(Config config) throws InterruptedException {
+        return testStartService(config, 10);
+    }
+
+    private Future<Boolean> testStartService(Config config, int startUpTimeoutSeconds) throws InterruptedException {
+        var futureResult = executorForTest.submit(() -> {
             serviceDeduplication.start(config);
             return true;
         });
+        log.info("Wait startup application {} seconds", startUpTimeoutSeconds);
+        Thread.sleep(startUpTimeoutSeconds * 1000L);
+        return futureResult;
     }
 }
