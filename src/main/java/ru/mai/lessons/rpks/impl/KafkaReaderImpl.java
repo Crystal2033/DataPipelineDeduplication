@@ -17,7 +17,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-
 @Slf4j
 @Builder
 public final class KafkaReaderImpl implements KafkaReader {
