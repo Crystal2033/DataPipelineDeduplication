@@ -22,8 +22,6 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.JdbcDatabaseContainer;
 import org.testcontainers.containers.KafkaContainer;
@@ -78,12 +76,6 @@ class ServiceTest {
 
     private final Service serviceDeduplication = new ServiceDeduplication();
 
-    @AfterEach
-    void clearRedis() {
-        JedisPooled jedisPooled = createRedisClient();
-        jedisPooled.keys("*").forEach(jedisPooled::del);
-    }
-
     /**
      * Проверяет готовность Kafka
      */
@@ -134,7 +126,8 @@ class ServiceTest {
             consumer.subscribe(Collections.singletonList(topicIn));
             log.info("Consumer start reading");
 
-            getConsumerRecordsOutputTopic(consumer, 10, 1);
+            var actualConsumerRecords = getConsumerRecordsOutputTopic(consumer, 1, 10, 1);
+            actualConsumerRecords.forEach(actualRecords -> assertEquals(1, actualRecords.count()));
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
             throw new RuntimeException(e);
         }
@@ -176,7 +169,7 @@ class ServiceTest {
      * Тест проверяет следующее правило дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = true
      * Выполняется вставка правила в базу PostgreSQL.
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
-     * Отправляется несколько сообщений в входной топик - два из них подходят под правило.
+     * Отправляется несколько сообщений во входной топик - два из них подходят под правило.
      * Проверяется выходной топик - должен прочитать сообщение, которое соответствует условиям правил дедубликации.
      * Ждём 5 секунд, пока Redis удалит ключи.
      * Снова отправляем два ожидаемых сообщения во входной топик, которые подходят под правила дедубликации.
@@ -233,7 +226,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(6000L);
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -244,17 +237,17 @@ class ServiceTest {
                 }
             });
 
-            Thread.sleep(2000L);
-            Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
+            var listConsumerRecords = getConsumerRecordsOutputTopic(consumer, 4, 30, 1);
 
-            var consumerRecords = result.get(60, TimeUnit.SECONDS);
+            assertFalse(listConsumerRecords.isEmpty());
+            var actualCountRecords = listConsumerRecords.stream().map(ConsumerRecords::count).reduce(0, Integer::sum);
+            assertEquals(4, actualCountRecords);
 
-            assertFalse(consumerRecords.isEmpty());
-            assertEquals(4, consumerRecords.count());
-
-            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                assertNotNull(consumerRecord.value());
-                assertTrue(listExpectedJson.contains(consumerRecord.value()));
+            for (var consumerRecords : listConsumerRecords) {
+                for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+                    assertNotNull(consumerRecord.value());
+                    assertTrue(listExpectedJson.contains(consumerRecord.value()));
+                }
             }
 
             serviceIsWork.cancel(true);
@@ -333,8 +326,8 @@ class ServiceTest {
                 }
             });
 
-            log.info("Wait 5 seconds");
-            Thread.sleep(5000L);
+            log.info("Wait 10 seconds");
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -346,7 +339,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(6000L);
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -357,16 +350,17 @@ class ServiceTest {
                 }
             });
 
-            Thread.sleep(2000L);
-            Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
+            var listConsumerRecords = getConsumerRecordsOutputTopic(consumer, 6, 30, 1);
 
-            var consumerRecords = result.get(60, TimeUnit.SECONDS);
-            assertFalse(consumerRecords.isEmpty());
-            assertEquals(6, consumerRecords.count());
+            assertFalse(listConsumerRecords.isEmpty());
+            var actualCountRecords = listConsumerRecords.stream().map(ConsumerRecords::count).reduce(0, Integer::sum);
+            assertEquals(6, actualCountRecords);
 
-            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                assertNotNull(consumerRecord.value());
-                assertTrue(listExpectedJson.contains(consumerRecord.value()));
+            for (var consumerRecords : listConsumerRecords) {
+                for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+                    assertNotNull(consumerRecord.value());
+                    assertTrue(listExpectedJson.contains(consumerRecord.value()));
+                }
             }
 
             serviceIsWork.cancel(true);
@@ -384,11 +378,11 @@ class ServiceTest {
      * fieldName = 'age', timeToLiveSec = 10, isActive = false
      * Выполняется вставка правил в базу PostgreSQL.
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
-     * Отправляется несколько сообщений во входной топик - три из них подходят под правило.
+     * Отправляется несколько сообщений во входной топик - два из них подходят под правило.
      * Проверяется выходной топик - должен прочитать сообщение, которое соответствует условиям правил дедубликации.
      * Ждём 5 секунд, пока ключи удалятся из Redis
      * Снова отправляем три сообщения во входной топик, которые подходят под правила дедубликации.
-     * Проверяем, что на выходе 6 сообщения с ожидаемым содержимым.
+     * Проверяем, что на выходе 4 сообщения с ожидаемым содержимым.
      */
     @Test
     void testServiceDeduplicationOneRuleIsActiveFalse() {
@@ -444,7 +438,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(6000L);
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -455,17 +449,17 @@ class ServiceTest {
                 }
             });
 
-            Thread.sleep(1000L);
-            Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
+            var listConsumerRecords = getConsumerRecordsOutputTopic(consumer, 4, 30, 1);
 
-            var consumerRecords = result.get(60, TimeUnit.SECONDS);
+            assertFalse(listConsumerRecords.isEmpty());
+            var actualCountRecords = listConsumerRecords.stream().map(ConsumerRecords::count).reduce(0, Integer::sum);
+            assertEquals(4, actualCountRecords);
 
-            assertFalse(consumerRecords.isEmpty());
-            assertEquals(4, consumerRecords.count());
-
-            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                assertNotNull(consumerRecord.value());
-                assertTrue(listExpectedJson.contains(consumerRecord.value()));
+            for (var consumerRecords : listConsumerRecords) {
+                for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+                    assertNotNull(consumerRecord.value());
+                    assertTrue(listExpectedJson.contains(consumerRecord.value()));
+                }
             }
 
             serviceIsWork.cancel(true);
@@ -524,8 +518,8 @@ class ServiceTest {
                 }
             });
 
-            log.info("Wait 5 seconds");
-            Thread.sleep(5000L);
+            log.info("Wait 10 seconds");
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -536,17 +530,17 @@ class ServiceTest {
                 }
             });
 
-            Thread.sleep(1000L);
-            Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
+            var listConsumerRecords = getConsumerRecordsOutputTopic(consumer, 6, 30, 1);
 
-            var consumerRecords = result.get(60, TimeUnit.SECONDS);
+            assertFalse(listConsumerRecords.isEmpty());
+            var actualCountRecords = listConsumerRecords.stream().map(ConsumerRecords::count).reduce(0, Integer::sum);
+            assertEquals(6, actualCountRecords);
 
-            assertFalse(consumerRecords.isEmpty());
-            assertEquals(6, consumerRecords.count());
-
-            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                assertNotNull(consumerRecord.value());
-                assertTrue(listExpectedJson.contains(consumerRecord.value()));
+            for (var consumerRecords : listConsumerRecords) {
+                for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+                    assertNotNull(consumerRecord.value());
+                    assertTrue(listExpectedJson.contains(consumerRecord.value()));
+                }
             }
 
             serviceIsWork.cancel(true);
@@ -564,13 +558,13 @@ class ServiceTest {
      * fieldName = 'age', timeToLiveSec = 10, isActive = false
      * Выполняется вставка правила в базу PostgreSQL.
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
-     * Отправляется несколько сообщений во входной топик - три из них подходят под правило.
+     * Отправляется несколько сообщений во входной топик - ни одно из них не подходит под правила.
      * Проверяется выходной топик - должен прочитать сообщение, которое соответствует условиям правил дедубликации.
      * Ждём 5 секунд, но ключи не должны удалиться
      * Снова отправляем три сообщения во входной топик, которые уже не подходят под правила дедубликации.
      * Ждём 6 секунд, пока ключи действительно удалятся из Redis
      * Снова отправляем три сообщения во входной топик, которые подходят под правила дедубликации.
-     * Проверяем, что на выходе 6 сообщения с ожидаемым содержимым.
+     * Проверяем, что на выходе 9 сообщения с ожидаемым содержимым.
      */
     @Test
     void testServiceDeduplicationNoActiveRules() {
@@ -611,8 +605,8 @@ class ServiceTest {
                 }
             });
 
-            log.info("Wait 5 seconds");
-            Thread.sleep(5000L);
+            log.info("Wait 10 seconds");
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -624,7 +618,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(6000L);
+            Thread.sleep(10000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -635,17 +629,17 @@ class ServiceTest {
                 }
             });
 
-            Thread.sleep(1000L);
-            Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
+            var listConsumerRecords = getConsumerRecordsOutputTopic(consumer, 9, 30, 1);
 
-            var consumerRecords = result.get(60, TimeUnit.SECONDS);
+            assertFalse(listConsumerRecords.isEmpty());
+            var actualCountRecords = listConsumerRecords.stream().map(ConsumerRecords::count).reduce(0, Integer::sum);
+            assertEquals(9, actualCountRecords);
 
-            assertFalse(consumerRecords.isEmpty());
-            assertEquals(9, consumerRecords.count());
-
-            for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                assertNotNull(consumerRecord.value());
-                assertTrue(listExpectedJson.contains(consumerRecord.value()));
+            for (var consumerRecords : listConsumerRecords) {
+                for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+                    assertNotNull(consumerRecord.value());
+                    assertTrue(listExpectedJson.contains(consumerRecord.value()));
+                }
             }
 
             serviceIsWork.cancel(true);
@@ -781,10 +775,12 @@ class ServiceTest {
         }
     }
 
-    private ConsumerRecords<String, String> getConsumerRecordsOutputTopic(KafkaConsumer<String, String> consumer, int retry, int timeoutSeconds) {
+    private List<ConsumerRecords<String, String>> getConsumerRecordsOutputTopic(KafkaConsumer<String, String> consumer, int expectedCountMessages, int retry, int timeoutSeconds) {
         boolean state = false;
+        int actualCountMessages = 0;
+        List<ConsumerRecords<String, String>> actualRecords = new ArrayList<>();
         try {
-            while (!state && retry > 0) {
+            while (!state && retry > 0 && expectedCountMessages > actualCountMessages) {
                 ConsumerRecords<String, String> consumerRecords = consumer.poll(Duration.ofMillis(100));
                 if (consumerRecords.isEmpty()) {
                     log.info("Remaining attempts {}", retry);
@@ -792,13 +788,14 @@ class ServiceTest {
                     Thread.sleep(timeoutSeconds * 1000L);
                 } else {
                     log.info("Read messages {}", consumerRecords.count());
-                    return consumerRecords;
+                    actualCountMessages += consumerRecords.count();
+                    actualRecords.add(consumerRecords);
                 }
             }
         } catch (InterruptedException ex) {
             log.error("Interrupt read messages", ex);
         }
-        return ConsumerRecords.empty();
+        return actualRecords;
     }
 
     private Config replaceConfigForTest(Config config) {
@@ -813,10 +810,17 @@ class ServiceTest {
                 .withValue("redis.port", ConfigValueFactory.fromAnyRef(redis.getFirstMappedPort()));
     }
 
-    private Future<Boolean> testStartService(Config config) {
-        return executorForTest.submit(() -> {
+    private Future<Boolean> testStartService(Config config) throws InterruptedException {
+        return testStartService(config, 10);
+    }
+
+    private Future<Boolean> testStartService(Config config, int startUpTimeoutSeconds) throws InterruptedException {
+        var futureResult = executorForTest.submit(() -> {
             serviceDeduplication.start(config);
             return true;
         });
+        log.info("Wait startup application {} seconds", startUpTimeoutSeconds);
+        Thread.sleep(startUpTimeoutSeconds * 1000L);
+        return futureResult;
     }
 }
