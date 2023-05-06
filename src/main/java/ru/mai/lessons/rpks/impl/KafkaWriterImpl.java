@@ -47,7 +47,7 @@ public final class KafkaWriterImpl implements KafkaWriter {
     }
 
     private void init() {
-        log.info("init writerImpl");
+        log.debug("init writerImpl");
 
         this.kafkaProducer = new KafkaProducer<>(
                 Map.of(

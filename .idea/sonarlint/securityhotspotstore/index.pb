@@ -17,8 +17,6 @@ c
 .src/main/java/ru/mai/lessons/rpks/Service.java,d\1\d1a3ea2a4104e7c4b282edebb124a7f189a5c9df
 b
 2src/main/java/ru/mai/lessons/rpks/RedisClient.java,1\c\1c4319b8eab0b5865730f39c23c9f9ec4d7185e7
-p
-@src/main/java/ru/mai/lessons/rpks/impl/ServiceDeduplication.java,7\3\738cfc024e1cb44e9c90d8dafdca0d4c91b9231a
 {
 Ksrc/main/java/ru/mai/lessons/rpks/jooq/model/tables/DeduplicationRules.java,8\4\84e2d39ba0bbf4feb2f736ace36cd0598a1f09b6
 ‰
@@ -37,5 +35,7 @@ p
 @src/main/java/ru/mai/lessons/rpks/jooq/model/DefaultCatalog.java,e\a\eab52651c964bcad1c2c2eb62e169035b5459fc6
 <
 build.gradle,f\0\f07866736216be0ee2aba49e392191aeae700a35
-m
-=src/main/java/ru/mai/lessons/rpks/impl/RuleProcessorImpl.java,3\f\3fdb3ed56693080c432b6dfb9f6a2c1493c65831
+a
+1src/main/java/ru/mai/lessons/rpks/model/Rule.java,1\8\18062bf50ae937e2bc5df53c64b13687f1d60ab2
+d
+4src/main/java/ru/mai/lessons/rpks/model/Message.java,7\6\76fa569d290029216e6010d8fcc02d733fb21523

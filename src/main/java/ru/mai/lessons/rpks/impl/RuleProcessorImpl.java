@@ -53,7 +53,7 @@ public final class RuleProcessorImpl implements RuleProcessor {
         if (data.equals(combinedActiveFieldNames)) {
             message.setDeduplicationState(false);
         } else {
-            log.info("update value of message {} in redis", message.getValue());
+            log.debug("update value of message {} in redis", message.getValue());
             redisClient.writeData(combinedActiveFieldValues, combinedActiveFieldNames, secondsToLive);
             message.setDeduplicationState(true);
         }

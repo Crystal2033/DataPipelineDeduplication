@@ -67,11 +67,11 @@ public class ServiceDeduplication implements Service {
     }
 
     private void updateRules() {
-        log.info("Start reading rules from DB");
+        log.debug("Start reading rules from DB");
         synchronized (lock) {
             rules = dbReader.readRulesFromDB();
         }
-        log.info("End reading rules from DB");
+        log.debug("End reading rules from DB");
     }
 
     private Rule[] getRules() {

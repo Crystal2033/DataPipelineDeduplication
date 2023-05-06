@@ -43,10 +43,10 @@ public final class KafkaReaderImpl implements KafkaReader {
                 new StringDeserializer()
         );
 
-        log.info("consumer topic:" + topic);
+        log.debug("consumer topic:" + topic);
         this.kafkaConsumer.subscribe(Collections.singletonList(topic));
 
-        log.info("init readerImpl");
+        log.debug("init readerImpl");
 
         executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
@@ -62,7 +62,7 @@ public final class KafkaReaderImpl implements KafkaReader {
         while (true) {
             ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
             for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                log.info("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
+                log.debug("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
                 kafkaWriter.processing(new Message(consumerRecord.value()));
             }
         }
