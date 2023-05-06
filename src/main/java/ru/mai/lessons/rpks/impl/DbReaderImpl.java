@@ -14,7 +14,6 @@ import ru.mai.lessons.rpks.model.Rule;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-
 @Slf4j
 public final class DbReaderImpl implements DbReader {
     private final HikariDataSource hikariDataSource;
