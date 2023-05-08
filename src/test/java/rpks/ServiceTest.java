@@ -171,7 +171,7 @@ class ServiceTest {
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
      * Отправляется несколько сообщений во входной топик - два из них подходят под правило.
      * Проверяется выходной топик - должен прочитать сообщение, которое соответствует условиям правил дедубликации.
-     * Ждём 5 секунд, пока Redis удалит ключи.
+     * Ждём 15 секунд, пока Redis удалит ключи.
      * Снова отправляем два ожидаемых сообщения во входной топик, которые подходят под правила дедубликации.
      * Проверяем, что на выходе 4 сообщения с ожидаемым содержимым.
      */
@@ -192,7 +192,7 @@ class ServiceTest {
             consumer.subscribe(Collections.singletonList(topicOut));
 
             clearTable();
-            createAndCheckRuleInPostgreSQL(1L, 1L, "name", 5L, true);
+            createAndCheckRuleInPostgreSQL(1L, 1L, "name", 10L, true);
 
             Config config = ConfigFactory.load();
             config = replaceConfigForTest(config);
@@ -226,7 +226,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(10000L);
+            Thread.sleep(15000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -269,7 +269,7 @@ class ServiceTest {
      * Проверяется выходной топик - должен прочитать сообщение, которое соответствует условиям правил дедубликации.
      * Ждём 5 секунд, но ключи не должны удалиться
      * Снова отправляем три сообщения во входной топик, которые уже не подходят под правила дедубликации.
-     * Ждём 6 секунд, пока ключи действительно удалятся из Redis
+     * Ждём 15 секунд, пока ключи действительно удалятся из Redis
      * Снова отправляем три сообщения во входной топик, которые подходят под правила дедубликации.
      * Проверяем, что на выходе 6 сообщения с ожидаемым содержимым.
      */
@@ -290,8 +290,8 @@ class ServiceTest {
             consumer.subscribe(Collections.singletonList(topicOut));
 
             clearTable();
-            createAndCheckRuleInPostgreSQL(1L, 1L, "name", 5L, true);
-            createAndCheckRuleInPostgreSQL(1L, 2L, "age", 10L, true);
+            createAndCheckRuleInPostgreSQL(1L, 1L, "name", 10L, true);
+            createAndCheckRuleInPostgreSQL(1L, 2L, "age", 20L, true);
 
             Config config = ConfigFactory.load();
             config = replaceConfigForTest(config);
@@ -326,8 +326,8 @@ class ServiceTest {
                 }
             });
 
-            log.info("Wait 10 seconds");
-            Thread.sleep(10000L);
+            log.info("Wait 5 seconds");
+            Thread.sleep(5000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -339,7 +339,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(10000L);
+            Thread.sleep(15000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -380,7 +380,7 @@ class ServiceTest {
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
      * Отправляется несколько сообщений во входной топик - два из них подходят под правило.
      * Проверяется выходной топик - должен прочитать сообщение, которое соответствует условиям правил дедубликации.
-     * Ждём 5 секунд, пока ключи удалятся из Redis
+     * Ждём 15 секунд, пока ключи удалятся из Redis
      * Снова отправляем три сообщения во входной топик, которые подходят под правила дедубликации.
      * Проверяем, что на выходе 4 сообщения с ожидаемым содержимым.
      */
@@ -401,7 +401,7 @@ class ServiceTest {
             consumer.subscribe(Collections.singletonList(topicOut));
 
             clearTable();
-            createAndCheckRuleInPostgreSQL(1L, 1L, "name", 5L, true);
+            createAndCheckRuleInPostgreSQL(1L, 1L, "name", 10L, true);
             createAndCheckRuleInPostgreSQL(1L, 2L, "age", 10L, false);
 
             Config config = ConfigFactory.load();
@@ -438,7 +438,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(10000L);
+            Thread.sleep(15000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -477,7 +477,7 @@ class ServiceTest {
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
      * Отправляется несколько сообщений во входной топик.
      * Проверяется выходной топик - должен прочитать все сообщения.
-     * Ждём 5 секунд
+     * Ждём 15 секунд
      * Снова отправляем три сообщения во входной топик.
      * Проверяем, что на выходе 6 сообщения с ожидаемым содержимым.
      */
@@ -518,8 +518,8 @@ class ServiceTest {
                 }
             });
 
-            log.info("Wait 10 seconds");
-            Thread.sleep(10000L);
+            log.info("Wait 15 seconds");
+            Thread.sleep(15000L);
 
             listExpectedJson.forEach(json -> {
                 try {
@@ -560,7 +560,7 @@ class ServiceTest {
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
      * Отправляется несколько сообщений во входной топик - ни одно из них не подходит под правила.
      * Проверяется выходной топик - должен прочитать сообщение, которое соответствует условиям правил дедубликации.
-     * Ждём 5 секунд, но ключи не должны удалиться
+     * Ждём 10 секунд, но ключи не должны удалиться
      * Снова отправляем три сообщения во входной топик, которые уже не подходят под правила дедубликации.
      * Ждём 6 секунд, пока ключи действительно удалятся из Redis
      * Снова отправляем три сообщения во входной топик, которые подходят под правила дедубликации.
