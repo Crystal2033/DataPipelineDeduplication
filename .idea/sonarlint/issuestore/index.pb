@@ -39,8 +39,6 @@ a
 1src/main/java/ru/mai/lessons/rpks/model/Rule.java,1\8\18062bf50ae937e2bc5df53c64b13687f1d60ab2
 d
 4src/main/java/ru/mai/lessons/rpks/model/Message.java,7\6\76fa569d290029216e6010d8fcc02d733fb21523
-S
-#src/test/java/rpks/ServiceTest.java,0\b\0b8de6ab83c7e05c0194a9eeb21fd1a6bb0af5cd
 l
 <src/main/java/ru/mai/lessons/rpks/impl/ConfigReaderImpl.java,c\5\c5d911d1d539e7ec475a9c102882c099e7991711
 k
