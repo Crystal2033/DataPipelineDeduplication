@@ -67,3 +67,4 @@ public final class KafkaReaderImpl implements KafkaReader {
         }
     }
 }
+
