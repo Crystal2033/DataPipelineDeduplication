@@ -7,6 +7,7 @@ import ru.mai.lessons.rpks.KafkaReader;
 import ru.mai.lessons.rpks.Service;
 import ru.mai.lessons.rpks.model.Rule;
 
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
@@ -27,16 +28,16 @@ public class ServiceDeduplication implements Service {
         DbReader dbreader = new ReaderDB(url, user, password, driver);
 
         Queue<Rule[]> queue = new ConcurrentLinkedQueue<>();
-        final int[] nRules = {1};
         new Thread(() -> {
             try {
-                while(nRules[0] > 0) {
+                String fieldName = "";
+                while(!Objects.equals(fieldName, "exit")) {
                     //Считываем правила из БД
                     Rule[] rules = dbreader.readRulesFromDB();
                     if(!queue.isEmpty()) queue.remove();
                     queue.add(rules);
 
-                    nRules[0] = rules.length;
+                    fieldName = rules[0].getFieldName();
                     Thread.sleep(updateIntervalSec * 1000);
                 }
             } catch (InterruptedException ex) {

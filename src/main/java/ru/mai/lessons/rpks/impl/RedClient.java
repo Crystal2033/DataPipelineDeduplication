@@ -19,8 +19,8 @@ public class RedClient {
         getJedis().set(key, value);
     }
 
-    public String readData(String key) {
-        return getJedis().get(key);
+    public boolean existData(String key) {
+        return getJedis().exists(key);
     }
 
     public void expire(String key, long seconds) {

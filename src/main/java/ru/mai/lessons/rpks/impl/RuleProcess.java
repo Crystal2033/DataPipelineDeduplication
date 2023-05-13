@@ -27,9 +27,9 @@ public class RuleProcess implements RuleProcessor {
         {
             String fieldName = rule.getFieldName();
             Long liveSec = rule.getTimeToLiveSec();
-            Boolean isActive = rule.getIsActive();
+            boolean isActive = rule.getIsActive();
 
-            if (Boolean.TRUE.equals(isActive)) {
+            if (isActive) {
                 var value = jsonObject.get(fieldName);
                 String strValue = String.valueOf(value);
 
@@ -41,7 +41,7 @@ public class RuleProcess implements RuleProcessor {
         }
         if (ruleKey == null) return message;
 
-        if (redisClient.readData(String.valueOf(ruleKey)) == null){
+        if (!redisClient.existData(String.valueOf(ruleKey))){
             redisClient.writeData(String.valueOf(ruleKey), String.valueOf(ruleValue));
             redisClient.expire(String.valueOf(ruleKey), timeSec);
         }

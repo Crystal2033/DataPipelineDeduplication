@@ -5,18 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.StringSerializer;
-import ru.mai.lessons.rpks.KafkaReader;
 import ru.mai.lessons.rpks.KafkaWriter;
 import ru.mai.lessons.rpks.model.Message;
-
 import java.util.Map;
-import java.util.Optional;
-import java.util.Scanner;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 @Slf4j
 @RequiredArgsConstructor
