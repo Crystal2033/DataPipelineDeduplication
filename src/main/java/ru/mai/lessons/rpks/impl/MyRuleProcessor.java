@@ -15,34 +15,36 @@ public class MyRuleProcessor implements RuleProcessor {
 
 
     MyRedisClient redisClient;
+    ObjectMapper mapper;
 
     public MyRuleProcessor(Config config) {
         redisClient = new MyRedisClient(config);
+        mapper = new ObjectMapper();
     }
 
     @Override
     public Message processing(Message message, Rule[] rules) {
         try {
-            if (message.getValue().isEmpty() ) {
+            if (message.getValue().isEmpty()) {
                 message.setDeduplicationState(false);
                 return message;
             }
 
-            if (rules.length == 0){
+            if (rules.length == 0) {
                 message.setDeduplicationState(true);
                 return message;
             }
 
-            ObjectMapper mapper = new ObjectMapper();
             JsonNode jsonNode = mapper.readTree(message.getValue());
 
             long time = -1;
             String value;
             StringBuilder stringBuilder = new StringBuilder();
             for (Rule rule : rules) {
-                if (Boolean.TRUE.equals(rule.getIsActive())) {
-                    if (rule.getTimeToLiveSec() > time)
+                if (rule.isActive()) {
+                    if (rule.getTimeToLiveSec() > time) {
                         time = rule.getTimeToLiveSec();
+                    }
 
                     stringBuilder.append("_");
                     stringBuilder.append(jsonNode.get(rule.getFieldName()));
