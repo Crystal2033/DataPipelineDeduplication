@@ -261,7 +261,7 @@ class ServiceTest {
     }
 
     /**
-     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = true И
+     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = true и
      * fieldName = 'age', timeToLiveSec = 10, isActive = true
      * Выполняется вставка правила в базу PostgreSQL.
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
@@ -374,7 +374,7 @@ class ServiceTest {
     }
 
     /**
-     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = true И
+     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = true и
      * fieldName = 'age', timeToLiveSec = 10, isActive = false
      * Выполняется вставка правил в базу PostgreSQL.
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
@@ -554,7 +554,7 @@ class ServiceTest {
     }
 
     /**
-     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = false И
+     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = false и
      * fieldName = 'age', timeToLiveSec = 10, isActive = false
      * Выполняется вставка правила в базу PostgreSQL.
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
