@@ -19,17 +19,12 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-import static org.jooq.impl.DSL.name;
-
 @Slf4j
 @RequiredArgsConstructor
 public class Db implements DbReader {
     private HikariDataSource hikariDataSource;
     @NonNull
     private Config config;
-//    public Db (Config config){
-//        this.config = config;
-//    }
 
     @Override
     public Rule[] readRulesFromDB() {
@@ -81,9 +76,6 @@ public class Db implements DbReader {
 
     private void createDataSource() {
         try {
-//            String driver = config.getString("db.driver");
-//            String driver = "org.postgresql.Driver";
-//            Class.forName(driver);
             HikariConfig hikariConfig = getHikariConfig();
             log.info("Configuration is ready.");
             log.info("Creating the HiKariDataSource and assigning it as the global");
@@ -95,19 +87,14 @@ public class Db implements DbReader {
     }
     private HikariConfig getHikariConfig() {
         log.info("Creating the config with HikariConfig");
-        String driver = config.getString("db.driver");
-//        String driver = "org.postgresql.Driver";
         HikariConfig hikaConfig = null;
         try {
             hikaConfig = new HikariConfig();
-//            Class.forName(driver);
             hikaConfig.setJdbcUrl(config.getString("db.jdbcUrl"));
             //username
             hikaConfig.setUsername(config.getString("db.user"));
             //password
             hikaConfig.setPassword(config.getString("db.password"));
-            //driver class name
-//            hikaConfig.setDriverClassName(driver);
             return hikaConfig;
         } catch (Exception e) {
             e.printStackTrace();

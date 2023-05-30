@@ -41,9 +41,11 @@ public class KafkaReaderImpl implements KafkaReader {
     @NonNull
     Config config;
     private boolean isExit;
-//    ConcurrentLinkedQueue<Message> queue;
 
     public void processing() {
+        int updateIntervalSec = config.getInt("application.updateIntervalSec");
+        Db db = new Db(config);
+        rules = db.readRulesFromDB();
         log.info("Start reading kafka topic {}", topic);
         KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<>(
                 Map.of(
@@ -54,26 +56,22 @@ public class KafkaReaderImpl implements KafkaReader {
                 new StringDeserializer(),
                 new StringDeserializer()
         );
-//        updateIntervalSec = config.getInt("application.updateIntervalSec");
-//        queue = new ConcurrentLinkedQueue<>();
-//        db = new Db(config);
-//        rules = db.readRulesFromDB();
-//        TimerTask task = new TimerTask() {
-//            public void run() {
-//                rules = db.readRulesFromDB();
-//                for (Rule r :
-//                        rules) {
-//                    log.info(r.toString());
-//                    log.info("TIMER");
-//
-//                }
-//            }
-//        };
-//
-//        Timer timer = new Timer(true);
-//
-//        timer.schedule(task, 0, 1000L * updateIntervalSec);
-//        log.info("delay:" + updateIntervalSec);
+        TimerTask task = new TimerTask() {
+            public void run() {
+                rules = db.readRulesFromDB();
+                for (Rule r :
+                        rules) {
+                    log.info(r.toString());
+                    log.info("TIMER");
+
+                }
+            }
+        };
+
+        Timer timer = new Timer(true);
+
+        timer.schedule(task, 0, 1000L * updateIntervalSec);
+        log.info("delay:" + updateIntervalSec);
 
 
         kafkaConsumer.subscribe(Collections.singletonList(topic));
@@ -97,10 +95,8 @@ public class KafkaReaderImpl implements KafkaReader {
         log.info("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
 
         log.info(String.valueOf(consumerRecord));
-//        queue = new ConcurrentLinkedQueue<>();
         Message msg = new Message(consumerRecord.value(), true);
         RuleProcessorImpl ruleProcessor = new RuleProcessorImpl(config);
-//        queue = new ConcurrentLinkedQueue<>();
         Message processedMsg = ruleProcessor.processing(msg, rules);
         log.info("Start write message in kafka out topic {}", topicOut);
         try (KafkaProducer<String, String> kafkaProducer = new KafkaProducer<>(
@@ -111,10 +107,8 @@ public class KafkaReaderImpl implements KafkaReader {
                 new StringSerializer(),
                 new StringSerializer()
         )) {
-            if (!processedMsg.equals(null)) {
-//                Message queueElement = queue.peek();
+            if (processedMsg != null) {
                 log.info("Queue element {}", processedMsg);
-//                queue.remove();
                 Future<RecordMetadata> response = null;
 
                 if (processedMsg.isDeduplicationState()) {

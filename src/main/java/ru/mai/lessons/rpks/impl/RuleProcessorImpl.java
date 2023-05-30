@@ -10,6 +10,7 @@ import com.typesafe.config.Config;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.common.protocol.types.Field;
 import ru.mai.lessons.rpks.RuleProcessor;
 import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.model.Rule;
@@ -21,10 +22,10 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class RuleProcessorImpl implements RuleProcessor {
     boolean isExit = false;
-    private RedisClientImpl redisClient;
     @NonNull
     Config config;
     ObjectMapper mapper;
+    long timeToLive = 0;
     @Override
     public Message processing(Message message, Rule[] rules) {
         mapper = new ObjectMapper();
@@ -35,16 +36,13 @@ public class RuleProcessorImpl implements RuleProcessor {
         mapper.configure(DeserializationFeature.FAIL_ON_MISSING_CREATOR_PROPERTIES, false);
         String host = config.getConfig("redis").getString("host");
         int port = config.getConfig("redis").getInt("port");
-        redisClient = new RedisClientImpl(host, port);
-        if (Objects.equals(message.getValue(), "$exit")) {
-            isExit = true;
-        }
+        RedisClientImpl redisClient = new RedisClientImpl(host, port);
+        isExit = (Objects.equals(message.getValue(), "$exit"));
         message.setDeduplicationState(true);
 
 
         try{
-            long timeToLive = -1;
-            String key = "";
+            String key;
             StringBuilder str = new StringBuilder();
             Map<String, Object> map = mapper.readValue(message.getValue(), Map.class);
             if (!isExit) {
@@ -56,20 +54,7 @@ public class RuleProcessorImpl implements RuleProcessor {
                     //            ПРОВЕРКА ПРАВИЛ
                     log.info("RULES LENGTH {}", rules.length);
                     log.info("CHECKING FIELD {}", rule.getFieldName());
-                    if (map.containsKey(rule.getFieldName())) {
-                        if (rule.getIsActive()) {
-                            if (rule.getTimeToLiveSec() > timeToLive) {
-                                timeToLive = rule.getTimeToLiveSec();
-                            }
-
-                            str.append("_");
-                            str.append(map.get(rule.getFieldName()));
-                        }
-                    } else {
-                        message.setDeduplicationState(false);
-                        return message;
-                    }
-
+                    ruleCheck(rule, map, str, message);
                 }
                 key = str.toString();
                 if (!key.isEmpty()){
@@ -91,7 +76,17 @@ public class RuleProcessorImpl implements RuleProcessor {
             log.info("caught null exception");
             message.setDeduplicationState(false);
         }
-
         return message;
+    }
+    void ruleCheck(Rule rule, Map<String, Object> map, StringBuilder str, Message message){
+        if (map.containsKey(rule.getFieldName()) && Boolean.TRUE.equals(rule.getIsActive())) {
+            if (rule.getTimeToLiveSec() > timeToLive) {
+                timeToLive = rule.getTimeToLiveSec();
+            }
+            str.append("_");
+            str.append(map.get(rule.getFieldName()));
+        } else {
+            message.setDeduplicationState(false);
+        }
     }
 }
