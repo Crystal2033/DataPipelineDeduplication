@@ -339,7 +339,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(15000L);
+            Thread.sleep(25000L);
 
             listExpectedJson.forEach(json -> {
                 try {
