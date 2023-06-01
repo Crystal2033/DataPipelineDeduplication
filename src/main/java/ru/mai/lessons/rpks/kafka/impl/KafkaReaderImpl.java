@@ -1,5 +1,6 @@
 package ru.mai.lessons.rpks.kafka.impl;
 
+import com.typesafe.config.Config;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,14 +11,16 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import ru.mai.lessons.rpks.configs.ConfigurationReader;
+import ru.mai.lessons.rpks.configs.interfaces.ConfigReader;
 import ru.mai.lessons.rpks.dispatchers.DeduplicationDispatcher;
-import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
+import ru.mai.lessons.rpks.exceptions.ThreadWorkerNotFoundException;
 import ru.mai.lessons.rpks.kafka.interfaces.KafkaReader;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -35,39 +38,38 @@ public class KafkaReaderImpl implements KafkaReader {
 
     private final String exitWord;
 
-    private final DispatcherKafka dispatcherKafka;
-    private boolean isExit;
+    private final DeduplicationDispatcher dispatcherKafka;
+
+    private List<KafkaConsumer<String, String>> kafkaConsumers;
+
 
     @Override
     public void processing() {
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        try (Closeable executor = executorService::shutdownNow) {
+        ConfigReader configurationReader = new ConfigurationReader();
+        Config config = configurationReader.loadConfig().getConfig("kafka").getConfig("consumer");
+        int valueOfThreads = config.getInt("threads");
+
+        kafkaConsumers = new ArrayList<>();
+        ExecutorService executorService = Executors.newFixedThreadPool(valueOfThreads);
+        for (int i = 0; i < valueOfThreads; i++) {
             KafkaConsumer<String, String> kafkaConsumer = initKafkaConsumer();
-
+            kafkaConsumers.add(kafkaConsumer);
             kafkaConsumer.subscribe(Collections.singletonList(topic));
-
-            listenAndDelegateWork(executorService, kafkaConsumer);
-        } catch (IOException e) {
-            log.error("There is a problem with binding closeable object to executor service.");
+            if (i != valueOfThreads - 1) {
+                executorService.execute(() -> listenAndDelegateWork(kafkaConsumer));
+            }
         }
-
+        listenAndDelegateWork(kafkaConsumers.get(valueOfThreads - 1));
+        executorService.shutdown();
     }
 
-    private void listenAndDelegateWork(ExecutorService executorService, KafkaConsumer<String, String> kafkaConsumer) {
+    private void listenAndDelegateWork(KafkaConsumer<String, String> kafkaConsumer) {
         try (kafkaConsumer) {
-            while (!isExit) {
+            while (true) {
                 ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
                 for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                    if (consumerRecord.value().equals(exitWord)) {
-                        if (dispatcherKafka instanceof DeduplicationDispatcher deduplicationDispatcher) {
-                            deduplicationDispatcher.closeReadingThread();
-                            log.info("Closing thread");
-                        }
-                        isExit = true;
-                    } else {
-                        log.info("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
-                        executorService.execute(() -> sendForDeduplication(consumerRecord.value()));
-                    }
+                    log.info("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
+                    sendForDeduplication(consumerRecord.value());
                 }
             }
         }
@@ -86,6 +88,10 @@ public class KafkaReaderImpl implements KafkaReader {
     }
 
     private void sendForDeduplication(String msg) {
-        dispatcherKafka.actionWithMessage(msg);
+        try {
+            dispatcherKafka.actionWithMessage(msg);
+        } catch (ThreadWorkerNotFoundException e) {
+            log.error("There is a problem with thread worker: " + e.getMessage());
+        }
     }
 }

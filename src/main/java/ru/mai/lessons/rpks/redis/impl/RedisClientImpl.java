@@ -1,5 +1,6 @@
 package ru.mai.lessons.rpks.redis.impl;
 
+import com.typesafe.config.Config;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,13 +15,15 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RedisClientImpl implements RedisClient {
 
-    private final String host;
-    private final int port;
+    private final Config conf;
 
     private JedisPooled jedis;
 
+
     private JedisPooled getJedis() {
-        return Optional.ofNullable(jedis).orElse(new JedisPooled(host, port));
+        return Optional.ofNullable(jedis).orElse(
+                new JedisPooled(conf.getConfig("redis").getString("host"),
+                        conf.getConfig("redis").getInt("port")));
     }
 
     public synchronized void sendExpiredMessageIfNotExists(Message message, String key, long expireTimeInSec) {

@@ -3,33 +3,31 @@ package ru.mai.lessons.rpks.services;
 import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import ru.mai.lessons.rpks.dispatchers.DeduplicationDispatcher;
-import ru.mai.lessons.rpks.processors.interfaces.RuleProcessor;
-import ru.mai.lessons.rpks.processors.impl.DeduplicationProcessor;
-import ru.mai.lessons.rpks.services.interfaces.Service;
 import ru.mai.lessons.rpks.kafka.impl.KafkaReaderImpl;
-import ru.mai.lessons.rpks.kafka.impl.KafkaWriterImpl;
-import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
 import ru.mai.lessons.rpks.model.Rule;
+import ru.mai.lessons.rpks.processors.impl.DeduplicationProcessor;
+import ru.mai.lessons.rpks.processors.interfaces.RuleProcessor;
 import ru.mai.lessons.rpks.redis.impl.RedisClientImpl;
 import ru.mai.lessons.rpks.redis.interfaces.RedisClient;
 import ru.mai.lessons.rpks.repository.impl.DataBaseReader;
 import ru.mai.lessons.rpks.repository.impl.RulesUpdaterThread;
+import ru.mai.lessons.rpks.services.interfaces.Service;
 
-import java.io.Closeable;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static ru.mai.lessons.rpks.constants.MainNames.KAFKA_NAME;
-import static ru.mai.lessons.rpks.constants.MainNames.TOPIC_NAME_PATH;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class ServiceDeduplication implements Service {
+
     private final ConcurrentHashMap<String, List<Rule>> rulesConcurrentMap = new ConcurrentHashMap<>();
+    private static final String KAFKA_NAME = "kafka";
+    private static final String TOPIC_NAME_PATH = "topic.name";
     private Config outerConfig;
+
     @Override
     public void start(Config config) {
         outerConfig = config;
@@ -38,7 +36,7 @@ public class ServiceDeduplication implements Service {
         }
     }
 
-    private void startKafkaReader(DispatcherKafka dispatcherKafka) {
+    private void startKafkaReader(DeduplicationDispatcher dispatcherKafka) {
 
         Config config = outerConfig.getConfig(KAFKA_NAME).getConfig("consumer");
 
@@ -65,43 +63,27 @@ public class ServiceDeduplication implements Service {
     }
 
     private void connectToDBAndWork(DataBaseReader dataBaseReader) {
-        ExecutorService executorService = Executors.newCachedThreadPool();
-        try (Closeable service = executorService::shutdownNow) {
-            connectAndRun(dataBaseReader, executorService);
-        } catch (IOException e) {
-            log.error("There is an error with binding Closeable objects");
-        }
-
+        ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        connectAndRun(dataBaseReader, scheduledExecutorService);
+        scheduledExecutorService.shutdown();
     }
 
-    private KafkaWriterImpl createKafkaWriter(String topicToSendMsg, String bootstrapServers){
-                return KafkaWriterImpl.builder()
-                .topic(topicToSendMsg)
-                .bootstrapServers(bootstrapServers)
-                .build();
-    }
-
-    private void connectAndRun(DataBaseReader dataBaseReader, ExecutorService executorService) {
+    private void connectAndRun(DataBaseReader dataBaseReader, ScheduledExecutorService executorService) {
         try {
             if (dataBaseReader.connectToDataBase()) {
 
                 RulesUpdaterThread rulesDBUpdaterThread = new RulesUpdaterThread(rulesConcurrentMap, dataBaseReader, outerConfig);
 
-                Config configForWriter = outerConfig.getConfig(KAFKA_NAME).getConfig("producer");
-                KafkaWriterImpl kafkaWriter = createKafkaWriter(configForWriter.getConfig("transformation")
-                        .getString(TOPIC_NAME_PATH), configForWriter.getString("bootstrap.servers"));
+                RedisClient redisClient = new RedisClientImpl(outerConfig);
 
-                RedisClient redisClient = new RedisClientImpl(outerConfig.getConfig("redis").getString("host"),
-                        outerConfig.getConfig("redis").getInt("port"));
                 RuleProcessor ruleProcessor = new DeduplicationProcessor(redisClient);
 
-                DispatcherKafka filterDispatcher = new DeduplicationDispatcher(kafkaWriter, ruleProcessor, rulesDBUpdaterThread);
+                DeduplicationDispatcher deduplicationDispatcher = new DeduplicationDispatcher(outerConfig, rulesDBUpdaterThread, ruleProcessor);
 
+                long delayTimeInSec = outerConfig.getConfig("application").getLong("updateIntervalSec");
+                executorService.scheduleWithFixedDelay(rulesDBUpdaterThread, 0, delayTimeInSec, TimeUnit.SECONDS);
 
-                executorService.execute(rulesDBUpdaterThread);
-
-                startKafkaReader(filterDispatcher);
-                executorService.shutdown();
+                startKafkaReader(deduplicationDispatcher);
             } else {
                 log.error("There is a problem with connection to database.");
             }

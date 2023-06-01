@@ -1,56 +1,58 @@
 package ru.mai.lessons.rpks.dispatchers;
 
+import com.typesafe.config.Config;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ru.mai.lessons.rpks.exceptions.ThreadWorkerNotFoundException;
 import ru.mai.lessons.rpks.kafka.impl.KafkaWriterImpl;
-import ru.mai.lessons.rpks.kafka.interfaces.DispatcherKafka;
 import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.model.Rule;
 import ru.mai.lessons.rpks.processors.interfaces.RuleProcessor;
 import ru.mai.lessons.rpks.repository.impl.RulesUpdaterThread;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
-public class DeduplicationDispatcher implements DispatcherKafka {
+@RequiredArgsConstructor
+public class DeduplicationDispatcher {
+
+    private static final String KAFKA_NAME = "kafka";
+    private static final String TOPIC_NAME_PATH = "topic.name";
+    private final Config config;
     private final RulesUpdaterThread updaterRulesThread; //to get actual rules, which are in db thread reader
-    private ConcurrentHashMap<String, List<Rule>> rulesConcurrentMap;
-    private final KafkaWriterImpl kafkaWriter;
+    private KafkaWriterImpl kafkaWriter;
+
+    private Map<String, List<Rule>> rulesMap;
 
     private final RuleProcessor ruleProcessor;
 
-    public DeduplicationDispatcher(KafkaWriterImpl kafkaWriter, RuleProcessor ruleProcessor,
-                                   RulesUpdaterThread updaterRulesThread) {
-        this.updaterRulesThread = updaterRulesThread;
-        updateRules();
-        this.kafkaWriter = kafkaWriter;
-        this.ruleProcessor = ruleProcessor;
+    public void updateRules() throws ThreadWorkerNotFoundException {
+        rulesMap = Optional.ofNullable(updaterRulesThread).
+                orElseThrow(() -> new ThreadWorkerNotFoundException("Database updater not found")).getRulesConcurrentMap();
     }
 
-    public void updateRules() {
-        if (updaterRulesThread != null) {
-            rulesConcurrentMap = updaterRulesThread.getRulesConcurrentMap();
-        }
-    }
 
-    @Override
-    public void actionWithMessage(String msg) {
+    public void actionWithMessage(String msg) throws ThreadWorkerNotFoundException {
+        kafkaWriter = Optional.ofNullable(kafkaWriter).orElseGet(this::createKafkaWriterForSendingMessage);
         updateRules();
-        if (rulesConcurrentMap.size() == 0) {
+        if (rulesMap.isEmpty()) {
             kafkaWriter.processing(getMessage(msg, false));
         } else {
             Optional<Message> optionalMessage = Optional.ofNullable(
-                    ruleProcessor.processing(getMessage(msg, false), rulesConcurrentMap));
+                    ruleProcessor.processing(getMessage(msg, false), rulesMap));
             optionalMessage.ifPresent(kafkaWriter::processing);
         }
     }
 
-    public void closeReadingThread() {
-        updaterRulesThread.stopReadingDataBase();
+    private KafkaWriterImpl createKafkaWriterForSendingMessage() {
+        Config producerKafkaConfig = config.getConfig(KAFKA_NAME).getConfig("producer");
+        return KafkaWriterImpl.builder()
+                .topic(producerKafkaConfig.getConfig("enrichment").getString(TOPIC_NAME_PATH))
+                .bootstrapServers(producerKafkaConfig.getString("bootstrap.servers"))
+                .build();
     }
-
-
 
     private Message getMessage(String value, boolean isDuplicate) {
         return Message.builder()

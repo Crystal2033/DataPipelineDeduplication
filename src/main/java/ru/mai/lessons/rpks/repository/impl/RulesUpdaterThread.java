@@ -20,11 +20,6 @@ public class RulesUpdaterThread implements Runnable {
     private final DataBaseReader dataBaseReader;
 
     private final Config configForSleep;
-    private boolean isExit = false;
-
-    public void stopReadingDataBase() {
-        isExit = true;
-    }
 
     private void insertNewRulesInMap(Rule[] rules) {
         rulesConcurrentMap.clear();
@@ -42,18 +37,7 @@ public class RulesUpdaterThread implements Runnable {
 
     @Override
     public void run() {
-        while (!isExit) {
-            try {
-                Rule[] rules = dataBaseReader.readRulesFromDB();
-                insertNewRulesInMap(rules);
-                Thread.sleep(configForSleep.getConfig("application")
-                        .getLong("updateIntervalSec") * 1000);
-
-            } catch (InterruptedException e) {
-                log.error("Trouble with sleep of thread. " + e);
-                Thread.currentThread().interrupt();
-                return;
-            }
-        }
+        Rule[] rules = dataBaseReader.readRulesFromDB();
+        insertNewRulesInMap(rules);
     }
 }

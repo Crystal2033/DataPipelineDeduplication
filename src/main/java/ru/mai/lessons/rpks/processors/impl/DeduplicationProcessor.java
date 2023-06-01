@@ -30,7 +30,7 @@ public class DeduplicationProcessor implements RuleProcessor {
         return message;
     }
 
-    private String getKeyByFields(String checkingMessage, Map<String, List<Rule>> rulesMap) throws JSONException {
+    private String getRedisKeyByFields(String checkingMessage, Map<String, List<Rule>> rulesMap) throws JSONException {
         StringBuilder keyBuilder = new StringBuilder();
 
         JSONObject jsonObject = new JSONObject(checkingMessage);
@@ -51,7 +51,7 @@ public class DeduplicationProcessor implements RuleProcessor {
     }
 
     private void sendIfNotDuplicateAndSetMessageState(Message checkingMessage, Map<String, List<Rule>> rulesMap) throws JSONException {
-        String keyByRuleFields = getKeyByFields(checkingMessage.getValue(), rulesMap);
+        String keyByRuleFields = getRedisKeyByFields(checkingMessage.getValue(), rulesMap);
         long expireTimeInSec = getTotalExpireTimeByExistingRules(rulesMap);
         redis.sendExpiredMessageIfNotExists(checkingMessage, keyByRuleFields, expireTimeInSec);
     }

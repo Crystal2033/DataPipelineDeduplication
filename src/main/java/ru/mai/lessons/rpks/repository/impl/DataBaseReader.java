@@ -43,7 +43,7 @@ public class DataBaseReader implements DbReader, AutoCloseable {
             dataSourceConnection.close();
         }
         dataSourceConnection = dataSource.getConnection();
-        return dataSourceConnection.isValid(additionalDBConfig.getInt("connect_valid_time"));
+        return isConnectedToDataBase();
     }
 
     public boolean isConnectedToDataBase() throws SQLException {
@@ -80,11 +80,6 @@ public class DataBaseReader implements DbReader, AutoCloseable {
 
     @Override
     public void close() {
-        try {
-            dataSourceConnection.close();
-        } catch (SQLException e) {
-            log.error(e.getMessage(), e);
-        }
         dataSource.close();
     }
 
