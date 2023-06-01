@@ -1,8 +1,10 @@
 package ru.mai.lessons.rpks.exceptions;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
-public class ThreadWorkerNotFoundException extends Exception{
-    private final String msg;
+@Getter
+public class ThreadWorkerNotFoundException extends Exception {
+    private final String message;
 }

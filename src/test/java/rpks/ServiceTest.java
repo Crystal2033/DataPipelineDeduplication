@@ -354,6 +354,7 @@ class ServiceTest {
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
 
+
             assertFalse(consumerRecords.isEmpty());
             assertEquals(6, consumerRecords.count());
 
@@ -422,7 +423,7 @@ class ServiceTest {
                     fail();
                 }
             });
-            //Thread.sleep(500L);// TODO: ADDED BY AUTHOR
+            Thread.sleep(500L);// TODO: ADDED BY AUTHOR
             Set.of("{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}",
                     "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}",
                     "{\"name\":\"alex\", \"age\":19, \"sex\":\"M\"}",

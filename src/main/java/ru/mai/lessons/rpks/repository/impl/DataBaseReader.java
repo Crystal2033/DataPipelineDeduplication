@@ -52,8 +52,8 @@ public class DataBaseReader implements DbReader, AutoCloseable {
 
     @Override
     public Rule[] readRulesFromDB() {
-        try{
-            if(isConnectedToDataBase()){
+        try {
+            if (isConnectedToDataBase()) {
                 return dslContext.select()
                         .from(additionalDBConfig.getString("table_name"))
                         .where(field(additionalDBConfig.getString("deduplication_id_column_name"))
@@ -71,8 +71,7 @@ public class DataBaseReader implements DbReader, AutoCloseable {
                                 .build())
                         .toList().toArray(new Rule[0]);
             }
-        }
-        catch(SQLException ex){
+        } catch (SQLException ex) {
             log.error(ex.getMessage(), ex);
         }
         return new Rule[0];

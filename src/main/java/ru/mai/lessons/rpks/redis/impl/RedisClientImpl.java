@@ -9,6 +9,7 @@ import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.redis.interfaces.RedisClient;
 
 import java.util.Optional;
+import java.util.concurrent.Semaphore;
 
 @Slf4j
 @Data
@@ -19,6 +20,8 @@ public class RedisClientImpl implements RedisClient {
 
     private JedisPooled jedis;
 
+    private static Object syncObj = new Object();
+    private static Semaphore semaphore = new Semaphore(1);
 
     private JedisPooled getJedis() {
         return Optional.ofNullable(jedis).orElse(
@@ -26,16 +29,24 @@ public class RedisClientImpl implements RedisClient {
                         conf.getConfig("redis").getInt("port")));
     }
 
-    public synchronized void sendExpiredMessageIfNotExists(Message message, String key, long expireTimeInSec) {
+    public void sendExpiredMessageIfNotExists(Message message, String key, long expireTimeInSec) {
+
+        try {
+            semaphore.acquire();
+        } catch (InterruptedException e) {
+            log.error("Semaphore acquire problem. Interrupted.");
+            Thread.currentThread().interrupt();
+        }
         if (getJedis().exists(key)) {
-            log.info("Key {} exists in redis! Message {}", key, message.getValue());
+            log.debug("Key {} exists in redis! Message {}", key, message.getValue());
             message.setDuplicate(true);
 
         } else {
-            log.info("Set time to live {} seconds by key {} and message {}", expireTimeInSec, key, message.getValue());
+            log.debug("Set time to live {} seconds by key {} and message {}", expireTimeInSec, key, message.getValue());
             getJedis().set(key, "");
             getJedis().expire(key, expireTimeInSec);
             message.setDuplicate(false);
         }
+        semaphore.release();
     }
 }

@@ -37,7 +37,6 @@ public class RulesUpdaterThread implements Runnable {
 
     @Override
     public void run() {
-        Rule[] rules = dataBaseReader.readRulesFromDB();
-        insertNewRulesInMap(rules);
+        insertNewRulesInMap(dataBaseReader.readRulesFromDB());
     }
 }

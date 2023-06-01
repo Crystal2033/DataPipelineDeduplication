@@ -40,8 +40,7 @@ public class DeduplicationDispatcher {
         if (rulesMap.isEmpty()) {
             kafkaWriter.processing(getMessage(msg, false));
         } else {
-            Optional<Message> optionalMessage = Optional.ofNullable(
-                    ruleProcessor.processing(getMessage(msg, false), rulesMap));
+            Optional<Message> optionalMessage = ruleProcessor.processing(getMessage(msg, false), rulesMap);
             optionalMessage.ifPresent(kafkaWriter::processing);
         }
     }

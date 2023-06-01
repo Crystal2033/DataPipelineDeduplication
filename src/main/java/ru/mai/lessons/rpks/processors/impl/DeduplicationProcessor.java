@@ -20,14 +20,14 @@ public class DeduplicationProcessor implements RuleProcessor {
     private final RedisClient redis;
 
     @Override
-    public Message processing(Message message, Map<String, List<Rule>> rules) {
+    public Optional<Message> processing(Message message, Map<String, List<Rule>> rules) {
         try {
             sendIfNotDuplicateAndSetMessageState(message, rules);
         } catch (JSONException ex) {
-            //log.error("Parsing json message {} error: ", message.getValue(), ex);
-            return null;
+            log.error("Parsing json message {} error: ", message.getValue(), ex);
+            return Optional.empty();
         }
-        return message;
+        return Optional.of(message);
     }
 
     private String getRedisKeyByFields(String checkingMessage, Map<String, List<Rule>> rulesMap) throws JSONException {

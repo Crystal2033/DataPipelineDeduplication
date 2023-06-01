@@ -30,8 +30,7 @@ public class KafkaWriterImpl implements KafkaWriter {
 
         producerOptional = Optional.ofNullable(kafkaProducer);
         if (producerOptional.isPresent() && !message.isDuplicate()) {
-            producerOptional.get().send(new ProducerRecord<>(topic, message.getValue()));
-            log.info("Send");
+            kafkaProducer.send(new ProducerRecord<>(topic, message.getValue()));
         }
     }
 
