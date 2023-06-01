@@ -4,7 +4,6 @@ import com.typesafe.config.Config;
 import lombok.extern.slf4j.Slf4j;
 import ru.mai.lessons.rpks.dispatchers.DeduplicationDispatcher;
 import ru.mai.lessons.rpks.kafka.impl.KafkaReaderImpl;
-import ru.mai.lessons.rpks.model.Rule;
 import ru.mai.lessons.rpks.processors.impl.DeduplicationProcessor;
 import ru.mai.lessons.rpks.processors.interfaces.RuleProcessor;
 import ru.mai.lessons.rpks.redis.impl.RedisClientImpl;
@@ -14,8 +13,6 @@ import ru.mai.lessons.rpks.repository.impl.RulesUpdaterThread;
 import ru.mai.lessons.rpks.services.interfaces.Service;
 
 import java.sql.SQLException;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
