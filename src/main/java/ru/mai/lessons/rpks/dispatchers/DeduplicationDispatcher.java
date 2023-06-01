@@ -11,7 +11,6 @@ import ru.mai.lessons.rpks.processors.interfaces.RuleProcessor;
 import ru.mai.lessons.rpks.repository.impl.RulesUpdaterThread;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -24,23 +23,23 @@ public class DeduplicationDispatcher {
     private final RulesUpdaterThread updaterRulesThread; //to get actual rules, which are in db thread reader
     private KafkaWriterImpl kafkaWriter;
 
-    private Map<String, List<Rule>> rulesMap;
+    private List<Rule> rulesList;
 
     private final RuleProcessor ruleProcessor;
 
     public void updateRules() throws ThreadWorkerNotFoundException {
-        rulesMap = Optional.ofNullable(updaterRulesThread).
-                orElseThrow(() -> new ThreadWorkerNotFoundException("Database updater not found")).getRulesConcurrentMap();
+        rulesList = Optional.ofNullable(updaterRulesThread).
+                orElseThrow(() -> new ThreadWorkerNotFoundException("Database updater not found")).getRules();
     }
 
 
     public void actionWithMessage(String msg) throws ThreadWorkerNotFoundException {
         kafkaWriter = Optional.ofNullable(kafkaWriter).orElseGet(this::createKafkaWriterForSendingMessage);
         updateRules();
-        if (rulesMap.isEmpty()) {
+        if (rulesList.isEmpty()) {
             kafkaWriter.processing(getMessage(msg, false));
         } else {
-            Optional<Message> optionalMessage = ruleProcessor.processing(getMessage(msg, false), rulesMap);
+            Optional<Message> optionalMessage = ruleProcessor.processing(getMessage(msg, false), rulesList);
             optionalMessage.ifPresent(kafkaWriter::processing);
         }
     }

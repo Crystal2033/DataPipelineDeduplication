@@ -22,8 +22,6 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class ServiceDeduplication implements Service {
-
-    private final ConcurrentHashMap<String, List<Rule>> rulesConcurrentMap = new ConcurrentHashMap<>();
     private static final String KAFKA_NAME = "kafka";
     private static final String TOPIC_NAME_PATH = "topic.name";
     private Config outerConfig;
@@ -72,7 +70,7 @@ public class ServiceDeduplication implements Service {
         try {
             if (dataBaseReader.connectToDataBase()) {
 
-                RulesUpdaterThread rulesDBUpdaterThread = new RulesUpdaterThread(rulesConcurrentMap, dataBaseReader, outerConfig);
+                RulesUpdaterThread rulesDBUpdaterThread = new RulesUpdaterThread(dataBaseReader, outerConfig);
 
                 RedisClient redisClient = new RedisClientImpl(outerConfig);
 

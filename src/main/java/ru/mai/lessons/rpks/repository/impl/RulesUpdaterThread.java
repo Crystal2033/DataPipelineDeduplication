@@ -6,37 +6,36 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.mai.lessons.rpks.model.Rule;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Slf4j
 @Getter
 public class RulesUpdaterThread implements Runnable {
 
-    private final ConcurrentHashMap<String, List<Rule>> rulesConcurrentMap;
+    private List<Rule> rules;
 
     private final DataBaseReader dataBaseReader;
 
     private final Config configForSleep;
 
-    private void insertNewRulesInMap(Rule[] rules) {
-        rulesConcurrentMap.clear();
-        for (var rule : rules) {
-            List<Rule> myList;
-            if ((myList = rulesConcurrentMap.get(rule.getFieldName())) != null) {
-                myList.add(rule);
-                continue;
+    private List<Rule> makeUniqueListWithGreatestTTL(List<Rule> rulesFromDB) {
+        Map<String, Rule> greatestTTLRulesMap = new HashMap<>();
+        for (Rule rule : rulesFromDB) {
+            if (!greatestTTLRulesMap.containsKey(rule.getFieldName())) {
+                greatestTTLRulesMap.put(rule.getFieldName(), rule);
+            } else {
+                if (greatestTTLRulesMap.get(rule.getFieldName()).getTimeToLiveSec() < rule.getTimeToLiveSec()) {
+                    greatestTTLRulesMap.put(rule.getFieldName(), rule);
+                }
             }
-            myList = new ArrayList<>();
-            myList.add(rule);
-            rulesConcurrentMap.put(rule.getFieldName(), myList);
         }
+        return new ArrayList<>(greatestTTLRulesMap.values());
     }
 
     @Override
     public void run() {
-        insertNewRulesInMap(dataBaseReader.readRulesFromDB());
+        rules = makeUniqueListWithGreatestTTL(List.of(dataBaseReader.readRulesFromDB()));
+        rules.sort(Comparator.comparing(Rule::getFieldName));
     }
 }
