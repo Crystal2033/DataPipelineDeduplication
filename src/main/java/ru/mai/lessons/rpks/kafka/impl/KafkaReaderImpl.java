@@ -36,8 +36,6 @@ public class KafkaReaderImpl implements KafkaReader {
     private final String autoOffsetReset;
     private final String bootstrapServers;
 
-    private final String exitWord;
-
     private final DeduplicationDispatcher dispatcherKafka;
 
     private List<KafkaConsumer<String, String>> kafkaConsumers;

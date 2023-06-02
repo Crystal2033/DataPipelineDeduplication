@@ -41,7 +41,6 @@ public class ServiceDeduplication implements Service {
                 .bootstrapServers(config.getString("bootstrap.servers"))
                 .groupId(config.getString("group.id"))
                 .dispatcherKafka(dispatcherKafka)
-                .exitWord(outerConfig.getConfig(KAFKA_NAME).getString("exit.string"))
                 .build();
 
         kafkaReader.processing();
