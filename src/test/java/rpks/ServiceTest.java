@@ -349,7 +349,7 @@ class ServiceTest {
                     fail();
                 }
             });
-
+            Thread.sleep(500L);// TODO: ADDED BY AUTHOR
             Future<ConsumerRecords<String, String>> result = executorForTest.submit(() -> getConsumerRecordsOutputTopic(consumer, 10, 1));
 
             var consumerRecords = result.get(60, TimeUnit.SECONDS);
