@@ -18,6 +18,6 @@ public class ServiceDeduplication implements Service {
         KafkaReaderImpl kafkaReader = new KafkaReaderImpl("test_topic_in", "test_topic_out", reader, writer, rules, config);
         executorService.execute(kafkaReader::processing);
 
-        // написать код реализации сервиса фильтрации
+        // написать код реализации сервиса дедубликации
     }
 }

@@ -30,12 +30,11 @@ public class Db implements DbReader {
     public Rule[] readRulesFromDB() {
         try (Connection connection = getConnection()) {
             DSLContext context = DSL.using(connection, SQLDialect.POSTGRES);
-            String tableName = "deduplication_rules";
+            String tableName = config.getConfig("db").getString("table");
             int numberOfRows = context.fetchCount(context.selectFrom(tableName));
             Rule[] ruleArray = new Rule[numberOfRows];
             ArrayList<Rule> array = new ArrayList<>();
-            Result<Record> rules = context.select().from(tableName).fetch();
-            log.info("RESULT RULES {}", rules);
+            var rules = context.select().from(tableName).fetch();
             rules.forEach(e -> {
                 Long deduplicationId = (Long) e.getValue("deduplication_id");
                 Long ruleId = (Long) e.getValue("rule_id");
@@ -53,7 +52,7 @@ public class Db implements DbReader {
             throw new IllegalStateException("DB rules error");
         }
         catch (Exception e) {
-            log.info("CAUGHT FETCH EX");
+            log.error("CAUGHT FETCH EX");
             return new Rule[0];
         }
     }
@@ -82,7 +81,7 @@ public class Db implements DbReader {
             hikariDataSource = new HikariDataSource(hikariConfig);
         }
         catch (Exception e){
-            e.printStackTrace();
+            log.error("caught datasource exception");
         }
     }
     private HikariConfig getHikariConfig() {
@@ -97,7 +96,7 @@ public class Db implements DbReader {
             hikaConfig.setPassword(config.getString("db.password"));
             return hikaConfig;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("caught hikaconfig exception");
         }
 
         return hikaConfig;

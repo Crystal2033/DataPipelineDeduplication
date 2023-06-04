@@ -59,19 +59,12 @@ public class KafkaReaderImpl implements KafkaReader {
         TimerTask task = new TimerTask() {
             public void run() {
                 rules = db.readRulesFromDB();
-                for (Rule r :
-                        rules) {
-                    log.info(r.toString());
-                    log.info("TIMER");
-
-                }
             }
         };
 
         Timer timer = new Timer(true);
 
         timer.schedule(task, 0, 1000L * updateIntervalSec);
-        log.info("delay:" + updateIntervalSec);
 
 
         kafkaConsumer.subscribe(Collections.singletonList(topic));
@@ -93,8 +86,6 @@ public class KafkaReaderImpl implements KafkaReader {
             isExit = true;
         }
         log.info("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
-
-        log.info(String.valueOf(consumerRecord));
         Message msg = new Message(consumerRecord.value(), true);
         RuleProcessorImpl ruleProcessor = new RuleProcessorImpl(config);
         Message processedMsg = ruleProcessor.processing(msg, rules);
@@ -108,7 +99,6 @@ public class KafkaReaderImpl implements KafkaReader {
                 new StringSerializer()
         )) {
             if (processedMsg != null) {
-                log.info("Queue element {}", processedMsg);
                 Future<RecordMetadata> response = null;
 
                 if (processedMsg.isDeduplicationState()) {
@@ -128,7 +118,7 @@ public class KafkaReaderImpl implements KafkaReader {
                 }
             }
         }catch (KafkaException e) {
-            e.printStackTrace();
+            log.error("kafka exception caught");
         }
 
     }

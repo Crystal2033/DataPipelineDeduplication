@@ -10,7 +10,6 @@ import com.typesafe.config.Config;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.common.protocol.types.Field;
 import ru.mai.lessons.rpks.RuleProcessor;
 import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.model.Rule;
@@ -73,7 +72,7 @@ public class RuleProcessorImpl implements RuleProcessor {
             message.setDeduplicationState(false);
         }
         catch (Exception e) {
-            log.info("caught null exception");
+            log.error("caught null exception");
             message.setDeduplicationState(false);
         }
         return message;
