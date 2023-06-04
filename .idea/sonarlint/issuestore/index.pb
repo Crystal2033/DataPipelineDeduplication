@@ -1,14 +1,10 @@
 
 ?
 settings.gradle,0/5/05efc8b1657769a27696d478ded1e95f38737233
-9
-	README.md,8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
 <
 build.gradle,f/0/f07866736216be0ee2aba49e392191aeae700a35
 d
 4src/main/java/ru/mai/lessons/rpks/RuleProcessor.java,4/4/445e26ecac929d5e8d1ebf8b919dce86f17d39ea
-d
-4src/main/java/ru/mai/lessons/rpks/model/Message.java,7/6/76fa569d290029216e6010d8fcc02d733fb21523
 o
 ?src/main/java/ru/mai/lessons/rpks/ServiceDeduplicationMain.java,9/0/90d1e20d305248362e062cba7de5f986d1ae56fc
 b
@@ -23,3 +19,7 @@ c
 3src/main/java/ru/mai/lessons/rpks/ConfigReader.java,a/6/a63d6f135ac04befd116d8e1f31aa21b752441da
 ^
 .src/main/java/ru/mai/lessons/rpks/Service.java,d/1/d1a3ea2a4104e7c4b282edebb124a7f189a5c9df
+a
+1src/main/java/ru/mai/lessons/rpks/model/Rule.java,1/8/18062bf50ae937e2bc5df53c64b13687f1d60ab2
+b
+2src/main/java/ru/mai/lessons/rpks/KafkaWriter.java,6/7/67fb83b0c62ce1a45e1b4c0c0f68e80f8a68e515

@@ -51,8 +51,8 @@ public class RuleProcessorImpl implements RuleProcessor {
                 }
                 for (Rule rule : rules) {
                     //            ПРОВЕРКА ПРАВИЛ
-                    log.info("RULES LENGTH {}", rules.length);
-                    log.info("CHECKING FIELD {}", rule.getFieldName());
+                    log.debug("RULES LENGTH {}", rules.length);
+                    log.debug("CHECKING FIELD {}", rule.getFieldName());
                     ruleCheck(rule, map, str, message);
                 }
                 key = str.toString();
@@ -78,9 +78,10 @@ public class RuleProcessorImpl implements RuleProcessor {
         return message;
     }
     void ruleCheck(Rule rule, Map<String, Object> map, StringBuilder str, Message message){
-        if (map.containsKey(rule.getFieldName()) && Boolean.TRUE.equals(rule.getIsActive())) {
-            if (rule.getTimeToLiveSec() > timeToLive) {
-                timeToLive = rule.getTimeToLiveSec();
+        if (map.containsKey(rule.getFieldName())) {
+            if (Boolean.TRUE.equals(rule.getIsActive()) && (rule.getTimeToLiveSec() > timeToLive)) {
+                    timeToLive = rule.getTimeToLiveSec();
+
             }
             str.append("_");
             str.append(map.get(rule.getFieldName()));
