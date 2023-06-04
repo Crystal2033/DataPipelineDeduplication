@@ -196,7 +196,6 @@ class ServiceTest {
             Config config = ConfigFactory.load();
             config = replaceConfigForTest(config);
             Future<Boolean> serviceIsWork = testStartService(config);
-            Thread.sleep(3000L); //TODO: ADDED BY AUTHOR
 
             String expectedJsonOne = "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}";
             String expectedJsonTwo = "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}";
@@ -295,7 +294,6 @@ class ServiceTest {
             Config config = ConfigFactory.load();
             config = replaceConfigForTest(config);
             Future<Boolean> serviceIsWork = testStartService(config);
-            Thread.sleep(3000L); //TODO: ADDED BY AUTHOR
 
             String expectedJsonOne = "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}";
             String expectedJsonTwo = "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}";
@@ -407,7 +405,6 @@ class ServiceTest {
             Config config = ConfigFactory.load();
             config = replaceConfigForTest(config);
             Future<Boolean> serviceIsWork = testStartService(config);
-            Thread.sleep(3000L);// TODO: ADDED BY AUTHOR
 
             String expectedJsonOne = "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}";
             String expectedJsonTwo = "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}";
@@ -502,7 +499,6 @@ class ServiceTest {
             Config config = ConfigFactory.load();
             config = replaceConfigForTest(config);
             Future<Boolean> serviceIsWork = testStartService(config);
-            Thread.sleep(3000L);// TODO: ADDED BY AUTHOR
 
             String expectedJsonOne = "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}";
             String expectedJsonTwo = "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}";
@@ -589,7 +585,6 @@ class ServiceTest {
             Config config = ConfigFactory.load();
             config = replaceConfigForTest(config);
             Future<Boolean> serviceIsWork = testStartService(config);
-            Thread.sleep(3000L);// TODO: ADDED BY AUTHOR
 
             String expectedJsonOne = "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}";
             String expectedJsonTwo = "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}";
