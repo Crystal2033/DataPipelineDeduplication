@@ -61,9 +61,6 @@ public class Db implements DbReader {
     Connection getConnection() throws SQLException {
         return getDataSource().getConnection();
     }
-    void closeConnection() throws SQLException {
-        getDataSource().getConnection().close();
-    }
 
     private DataSource getDataSource() {
         if (null == hikariDataSource) {

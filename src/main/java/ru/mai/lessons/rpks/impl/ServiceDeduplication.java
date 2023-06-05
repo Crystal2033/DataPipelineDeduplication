@@ -15,7 +15,9 @@ public class ServiceDeduplication implements Service {
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         String reader = config.getString("kafka.consumer.bootstrap.servers");
         String writer = config.getString("kafka.producer.bootstrap.servers");
-        KafkaReaderImpl kafkaReader = new KafkaReaderImpl("test_topic_in", "test_topic_out", reader, writer, rules, config);
+        String topicIn = config.getString("kafka.topicIn");
+        String topicOut = config.getString("kafka.topicOut");
+        KafkaReaderImpl kafkaReader = new KafkaReaderImpl(topicIn, topicOut, reader, writer, rules, config);
         executorService.execute(kafkaReader::processing);
 
         // написать код реализации сервиса дедубликации

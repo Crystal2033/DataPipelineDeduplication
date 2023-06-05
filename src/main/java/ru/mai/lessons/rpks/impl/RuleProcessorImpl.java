@@ -20,7 +20,6 @@ import java.util.Objects;
 @Slf4j
 @RequiredArgsConstructor
 public class RuleProcessorImpl implements RuleProcessor {
-    boolean isExit = false;
     @NonNull
     Config config;
     ObjectMapper mapper;
@@ -36,7 +35,6 @@ public class RuleProcessorImpl implements RuleProcessor {
         String host = config.getConfig("redis").getString("host");
         int port = config.getConfig("redis").getInt("port");
         RedisClientImpl redisClient = new RedisClientImpl(host, port);
-        isExit = (Objects.equals(message.getValue(), "$exit"));
         message.setDeduplicationState(true);
 
 
@@ -44,26 +42,26 @@ public class RuleProcessorImpl implements RuleProcessor {
             String key;
             StringBuilder str = new StringBuilder();
             Map<String, Object> map = mapper.readValue(message.getValue(), Map.class);
-            if (!isExit) {
-                if (rules.length == 0) {
-                    message.setDeduplicationState(true);
-                    return message;
-                }
-                for (Rule rule : rules) {
-                    //            ПРОВЕРКА ПРАВИЛ
-                    log.debug("RULES LENGTH {}", rules.length);
-                    log.debug("CHECKING FIELD {}", rule.getFieldName());
-                    ruleCheck(rule, map, str, message);
-                }
-                key = str.toString();
-                if (!key.isEmpty()){
-                    message.setDeduplicationState(redisClient.existsKey(key, timeToLive));
-                }
-
-            } else {
-                message.setValue("$exit");
+//            if (!isExit) {
+            if (rules.length == 0) {
                 message.setDeduplicationState(true);
+                return message;
             }
+            for (Rule rule : rules) {
+                //            ПРОВЕРКА ПРАВИЛ
+                log.debug("RULES LENGTH {}", rules.length);
+                log.debug("CHECKING FIELD {}", rule.getFieldName());
+                ruleCheck(rule, map, str, message);
+            }
+            key = str.toString();
+            if (!key.isEmpty()){
+                message.setDeduplicationState(redisClient.existsKey(key, timeToLive));
+            }
+
+//            } else {
+//                message.setValue("$exit");
+//                message.setDeduplicationState(true);
+//            }
         } catch (JsonMappingException e) {
             log.error("mapping exception caught");
             message.setDeduplicationState(false);
@@ -79,12 +77,14 @@ public class RuleProcessorImpl implements RuleProcessor {
     }
     void ruleCheck(Rule rule, Map<String, Object> map, StringBuilder str, Message message){
         if (map.containsKey(rule.getFieldName())) {
-            if (Boolean.TRUE.equals(rule.getIsActive()) && (rule.getTimeToLiveSec() > timeToLive)) {
+            if (Boolean.TRUE.equals(rule.getIsActive())) {
+                if (rule.getTimeToLiveSec() > timeToLive) {
                     timeToLive = rule.getTimeToLiveSec();
-
             }
             str.append("_");
             str.append(map.get(rule.getFieldName()));
+            }
+
         } else {
             message.setDeduplicationState(false);
         }
