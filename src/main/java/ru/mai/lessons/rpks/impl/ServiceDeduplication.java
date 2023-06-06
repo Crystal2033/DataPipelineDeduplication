@@ -30,14 +30,12 @@ public class ServiceDeduplication implements Service {
         Queue<Rule[]> queue = new ConcurrentLinkedQueue<>();
         new Thread(() -> {
             try {
-                String fieldName = "";
-                while(!Objects.equals(fieldName, "exit")) {
+                while(true) {
                     //Считываем правила из БД
                     Rule[] rules = dbreader.readRulesFromDB();
                     if(!queue.isEmpty()) queue.remove();
                     queue.add(rules);
 
-                    fieldName = rules[0].getFieldName();
                     Thread.sleep(updateIntervalSec * 1000);
                 }
             } catch (InterruptedException ex) {
