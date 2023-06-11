@@ -51,7 +51,7 @@ public class MessageRuleProcessor implements RuleProcessor {
             }
 
             if (!redisClient.containsKey(keyMap)) {
-                redisClient.write(keyMap, keyMap, ttl);
+                redisClient.write(keyMap, ttl);
             }
             else {
                 message.setDeduplicationState(false);

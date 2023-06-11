@@ -14,6 +14,7 @@ import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.model.Rule;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -58,11 +59,11 @@ public class MyKafkaReader implements KafkaReader {
                         kafkaWriter.processing(ruleProcessor.processing(Message.builder().value(messageValue).build(), actualMessageRules));
                     }
                 } catch (InterruptException e) {
-                    e.printStackTrace();
+                    log.error("KAFKA READER -- Thread interrupted for some reason\nStack Trace:\n{}", Arrays.deepToString(e.getStackTrace()));
                     Thread.currentThread().interrupt();
                 }
                 catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("KAFKA READER -- Caught an exception while reading Kafka\nStack Trace:\n{}", Arrays.deepToString(e.getStackTrace()));
                 }
             }
         });

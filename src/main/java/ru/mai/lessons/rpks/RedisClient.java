@@ -11,5 +11,5 @@ public interface RedisClient {
     */
     public boolean containsKey(Map<String, String> key);
 
-    public void write(Map<String, String> key, Map<String, String> value, long timeToLiveSec);
+    public void write(Map<String, String> key, long timeToLiveSec);
 }

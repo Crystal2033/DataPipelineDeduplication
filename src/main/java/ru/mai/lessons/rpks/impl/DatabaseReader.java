@@ -35,7 +35,7 @@ public class DatabaseReader implements DbReader {
             return context.select().from("deduplication_rules").fetch().into(Rule.class).toArray(Rule[]::new);
         }
         catch (SQLException e) {
-            log.info("Something went wrong with DB!");
+            log.error("Something went wrong with DB!");
         }
         return new Rule[0];
     }

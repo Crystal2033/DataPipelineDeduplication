@@ -27,10 +27,10 @@ public class MyRedisClient  implements RedisClient {
     }
 
     @Override
-    public void write(Map<String, String> key, Map<String, String> value, long timeToLiveSec) {
+    public void write(Map<String, String> key, long timeToLiveSec) {
         try (Jedis jedis = jedisPool.getResource()) {
             var keyJSON = fromMap2String(key);
-            jedis.set(keyJSON, fromMap2String(value));
+            jedis.set(keyJSON, "");
             jedis.expire(keyJSON, timeToLiveSec);
         }
     }
