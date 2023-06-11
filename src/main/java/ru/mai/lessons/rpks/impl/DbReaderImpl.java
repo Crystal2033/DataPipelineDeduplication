@@ -36,7 +36,7 @@ public final class DbReaderImpl implements DbReader {
                     .fetchInto(Rule.class)
                     .toArray(Rule[]::new);
         } catch (SQLException e) {
-            log.info("DB rules error!");
+            log.error("DB rules error: {}", e.toString());
             throw new IllegalStateException("DB rules error");
         }
     }
