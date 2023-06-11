@@ -13,6 +13,7 @@ import java.util.*;
 @Slf4j
 public class RuleProcessorI implements RuleProcessor {
     RedisClientI redisClientI;
+    private final ObjectMapper mapper = new ObjectMapper();
     public RuleProcessorI(RedisClientI redisClient){
         this.redisClientI = redisClient;
     }
@@ -22,13 +23,12 @@ public class RuleProcessorI implements RuleProcessor {
         if (rules.length == 0){
             return message;
         }
-        rules = Arrays.stream(rules).filter(Rule::getIsActive).toArray(Rule[]::new);
+        rules = Arrays.stream(rules).filter(Rule::isActive).toArray(Rule[]::new);
 
         var fieldNames = Arrays.stream(rules).map(Rule::getFieldName).sorted().toArray(String[]::new);
         if (fieldNames.length == 0) {
-           return message;
+            return message;
         }
-        ObjectMapper mapper = new ObjectMapper();
         SortedMap<String, String> messageComplete = new TreeMap<>();
         String value = message.getValue();
         try {
@@ -37,7 +37,7 @@ public class RuleProcessorI implements RuleProcessor {
             String valForMap;
             long maxTime = 0;
             for (Rule rule: rules){
-                if (Boolean.TRUE.equals(rule.getIsActive())){
+                if (rule.isActive()){
                     key = rule.getFieldName();
                     JsonNode val = node.path(rule.getFieldName());
                     if (!val.isMissingNode()) {
@@ -56,7 +56,7 @@ public class RuleProcessorI implements RuleProcessor {
             if (redisClientI.contiansRule(keys)){
                 message.setDeduplicationState(false);
             } else {
-                redisClientI.writeRule(keys, keys, maxTime);
+                redisClientI.writeRule(keys, maxTime);
             }
 
             return message;

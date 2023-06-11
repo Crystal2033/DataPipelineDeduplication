@@ -11,9 +11,9 @@ public class RedisClientI implements RedisClient {
         pool = new JedisPool(conf.getString("host"), conf.getInt("port"));
     }
     @Override
-    public void writeRule(String key, String value, long time) {
+    public void writeRule(String key, long time) {
         try (Jedis jedis = pool.getResource()) {
-            jedis.set(key, value);
+            jedis.set(key, "");
             jedis.expire(key, time);
         }
     }
