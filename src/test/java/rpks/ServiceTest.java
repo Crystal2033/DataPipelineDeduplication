@@ -311,7 +311,6 @@ class ServiceTest {
                     fail();
                 }
             });
-
             Set.of("{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}",
                     "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}",
                     "{\"name\":\"alex\", \"age\":19, \"sex\":\"M\"}",
@@ -339,7 +338,7 @@ class ServiceTest {
             });
 
             log.info("Wait until Redis expired keys");
-            Thread.sleep(15000L);
+            Thread.sleep(20000L);
 
             listExpectedJson.forEach(json -> {
                 try {
