@@ -54,19 +54,14 @@ public class KafkaReaderImpl implements KafkaReader {
             while (!isExit) {
                 ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(100));
                 for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
-                    if (consumerRecord.value().equals("$exit")) {
-                        isExit = true;
-                    } else {
-                        log.info("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
-                        Message msg = new Message(consumerRecord.value(), true);
-                        Message checkMsg = ruleProcessor.processing(msg, rules);
-                        if (checkMsg.getDeduplicationState()) {
-                            kafkaWriter.processing(checkMsg);
-                        }
+                    log.debug("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
+                    Message msg = new Message(consumerRecord.value(), true);
+                    Message checkMsg = ruleProcessor.processing(msg, rules);
+                    if (checkMsg.getDeduplicationState()) {
+                        kafkaWriter.processing(checkMsg);
                     }
                 }
             }
-            log.info("Read is done!");
         }
     }
 

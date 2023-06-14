@@ -17,10 +17,8 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.table;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -51,30 +49,18 @@ public class DbReaderImpl implements DbReader {
     }
 
     void createDataSource() {
-        try {
-            String driver = config.getString("db.driver");
-            Class.forName(driver);
-            HikariConfig hikariConfigConfig = createHikariConfig();
-            this.dataSource = new HikariDataSource(hikariConfigConfig);
-            log.info("Created a new datasource");
-        } catch (ClassNotFoundException e) {
-            log.error("Class not found exception (create data source)");
-        }
+        HikariConfig hikariConfigConfig = createHikariConfig();
+        this.dataSource = new HikariDataSource(hikariConfigConfig);
+        log.info("Created a new datasource");
     }
 
     HikariConfig createHikariConfig() {
-        String driver = config.getString("db.driver");
         HikariConfig hikariConfig = new HikariConfig();
-        try {
-            Class.forName(driver);
-            hikariConfig.setJdbcUrl(config.getString("db.jdbcUrl"));
-            hikariConfig.setUsername(config.getString("db.user"));
-            hikariConfig.setPassword(config.getString("db.password"));
-            hikariConfig.setDriverClassName(driver);
-            log.info("Hikari config was done");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+        hikariConfig.setJdbcUrl(config.getString("db.jdbcUrl"));
+        hikariConfig.setUsername(config.getString("db.user"));
+        hikariConfig.setPassword(config.getString("db.password"));
+        hikariConfig.setDriverClassName(config.getString("db.driver"));
+        log.info("Hikari config was done");
         return hikariConfig;
     }
 
@@ -87,13 +73,7 @@ public class DbReaderImpl implements DbReader {
 
             ArrayList<Rule> rulesFromDb = new ArrayList<>();
 
-            var selectFromDb = dsl.select(
-                    field(deduplicationId),
-                    field(ruleId),
-                    field(fieldName),
-                    field(timeToLiveSec),
-                    field(isActive)
-            ).from(table(tableName)).fetch();
+            var selectFromDb = dsl.select().from(tableName).fetch();
 
             selectFromDb.forEach(row -> {
                 Long fieldDeduplicationId = (Long) row.getValue(field(deduplicationId));

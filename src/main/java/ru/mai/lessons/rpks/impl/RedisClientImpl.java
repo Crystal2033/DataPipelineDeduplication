@@ -21,7 +21,7 @@ public class RedisClientImpl implements RedisClient {
             log.info("Rules [{}] with time live {} is exist", key, timeToLive);
             return false;
         }
-        getJedis().set(key, String.valueOf(timeToLive));
+        getJedis().set(key, "");
         log.info("Rules [{}] with time live {} add", key, timeToLive);
         getJedis().expire(key, timeToLive);
         return true;

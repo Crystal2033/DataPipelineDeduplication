@@ -49,8 +49,8 @@ public class ServiceDeduplication implements Service {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                task.cancel();
-                timer.cancel();
+            task.cancel();
+            timer.cancel();
             }
         });
     }
