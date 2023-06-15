@@ -18,11 +18,11 @@ public class RedisClientImpl implements RedisClient {
 
     public boolean isExist(String key, long timeToLive) {
         if (getJedis().exists(key)) {
-            log.info("Rules [{}] with time live {} is exist", key, timeToLive);
+            log.debug("Rules [{}] with time live {} is exist", key, timeToLive);
             return false;
         }
         getJedis().set(key, "");
-        log.info("Rules [{}] with time live {} add", key, timeToLive);
+        log.debug("Rules [{}] with time live {} add", key, timeToLive);
         getJedis().expire(key, timeToLive);
         return true;
     }

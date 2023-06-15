@@ -9,5 +9,7 @@ b
 2src/main/java/ru/mai/lessons/rpks/KafkaReader.java,a/3/a3f424bbcf25a85c93204d58f0870cf237ddbbd6
 ^
 .src/main/java/ru/mai/lessons/rpks/Service.java,d/1/d1a3ea2a4104e7c4b282edebb124a7f189a5c9df
-o
-?src/main/java/ru/mai/lessons/rpks/impl/ConfigurationReader.java,b/0/b03a9176534914f90d9ef9a164fcdb3ab753e9b2
+a
+1src/main/java/ru/mai/lessons/rpks/model/Rule.java,1/8/18062bf50ae937e2bc5df53c64b13687f1d60ab2
+<
+build.gradle,f/0/f07866736216be0ee2aba49e392191aeae700a35

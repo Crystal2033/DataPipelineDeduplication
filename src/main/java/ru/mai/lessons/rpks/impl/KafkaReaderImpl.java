@@ -57,7 +57,7 @@ public class KafkaReaderImpl implements KafkaReader {
                     log.debug("Message from Kafka topic {} : {}", consumerRecord.topic(), consumerRecord.value());
                     Message msg = new Message(consumerRecord.value(), true);
                     Message checkMsg = ruleProcessor.processing(msg, rules);
-                    if (checkMsg.getDeduplicationState()) {
+                    if (checkMsg.isDeduplicationState()) {
                         kafkaWriter.processing(checkMsg);
                     }
                 }
