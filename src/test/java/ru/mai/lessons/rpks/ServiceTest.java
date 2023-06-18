@@ -1,4 +1,4 @@
-package rpks;
+package ru.mai.lessons.rpks;
 
 import com.redis.testcontainers.RedisContainer;
 import com.typesafe.config.Config;
