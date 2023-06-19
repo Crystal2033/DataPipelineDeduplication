@@ -11,6 +11,7 @@ import ru.mai.lessons.rpks.model.Rule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.TreeSet;
 
 @Slf4j
 @Builder
@@ -24,6 +25,7 @@ public class ProcessorOfRule implements RuleProcessor {
         messageValue=messageValue.replace(":-,",":null,");
         JSONObject jsonObject =( JSONObject) (new JSONParser().parse(messageValue));
         boolean allFieldsContains=true;
+        TreeSet<String> keys=new TreeSet<>();
         StringBuilder key=new StringBuilder();
         message.setDeduplicationState(false);
         for(Rule rule:rules){
@@ -32,7 +34,9 @@ public class ProcessorOfRule implements RuleProcessor {
                 if (jsonObject.containsKey(rule.getFieldName())) {
                     String jsonValue = (jsonObject.get(rule.getFieldName()) == null) ? ("null") : jsonObject.get(rule.getFieldName()).toString();
                     key.append("|").append(rule.getFieldName()).append(":").append(jsonValue).append("|");
-                    message.setDeduplicationState(addToRedis(key.toString(), rule.getTimeToLiveSec()));
+                    keys.add(key.toString());
+                    key=new StringBuilder();
+                    message.setDeduplicationState(addToRedis(Arrays.toString(keys.toArray()), rule.getTimeToLiveSec()));
                 } else {
                     allFieldsContains = false;
                 }
