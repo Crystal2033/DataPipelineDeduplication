@@ -14,20 +14,21 @@ public class RuleProcessorImpl implements RuleProcessor {
     ObjectMapper mapper = new ObjectMapper();
 
     boolean compare(String value, Rule rule){
-        if (Objects.equals(rule.getFilterFunctionName(), "equals")
-                && Objects.equals(value, rule.getFilterValue())) {
-            return true;
-        }
-        else if (Objects.equals(rule.getFilterFunctionName(), "contains")
-                && value.contains(rule.getFilterValue())) {
-            return true;
-        }
-        else if (Objects.equals(rule.getFilterFunctionName(), "not_equals")
-                && !Objects.equals(value, rule.getFilterValue())) {
-            return true;
-        }
-        else return Objects.equals(rule.getFilterFunctionName(), "not_contains")
-                    && !value.contains(rule.getFilterValue());
+//        if (Objects.equals(rule.getFilterFunctionName(), "equals")
+//                && Objects.equals(value, rule.getFilterValue())) {
+//            return true;
+//        }
+//        else if (Objects.equals(rule.getFilterFunctionName(), "contains")
+//                && value.contains(rule.getFilterValue())) {
+//            return true;
+//        }
+//        else if (Objects.equals(rule.getFilterFunctionName(), "not_equals")
+//                && !Objects.equals(value, rule.getFilterValue())) {
+//            return true;
+//        }
+//        else return Objects.equals(rule.getFilterFunctionName(), "not_contains")
+//                    && !value.contains(rule.getFilterValue());
+        return true;
     }
 
     @Override
@@ -39,33 +40,33 @@ public class RuleProcessorImpl implements RuleProcessor {
                 JsonNode temp = jsonNode.get(rule.getFieldName());
                 if (temp == null)
                 {
-                    message.setFilterState(false);
+                    message.setDeduplicationState(false);
                     return message;
                 }
 
                 if (!temp.isValueNode())
                 {
-                    message.setFilterState(false);
+                    message.setDeduplicationState(false);
                     return message;
                 }
 
                 String value = jsonNode.get(rule.getFieldName()).asText();
                 if (value == null)
                 {
-                    message.setFilterState(false);
+                    message.setDeduplicationState(false);
                     return message;
                 }
                 if (value.isEmpty())
                 {
-                    message.setFilterState(false);
+                    message.setDeduplicationState(false);
                     return message;
                 }
                 if (!compare(value, rule)) {
-                    message.setFilterState(false);
+                    message.setDeduplicationState(false);
                     return message;
                 }
 
-                message.setFilterState(true);
+                message.setDeduplicationState(true);
             }
         } catch (Exception e){
             log.info("Json error :{}", e.toString());

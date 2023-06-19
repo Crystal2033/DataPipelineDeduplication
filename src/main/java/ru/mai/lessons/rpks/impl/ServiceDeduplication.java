@@ -6,6 +6,7 @@ import ru.mai.lessons.rpks.Service;
 public class ServiceDeduplication implements Service {
     @Override
     public void start(Config config) {
-        // написать код реализации сервиса фильтрации
+        var reader = new KafkaReaderImpl(config);
+        reader.processing();
     }
 }
