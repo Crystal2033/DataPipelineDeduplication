@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<configuration xmlns="http://www.jooq.org/xsd/jooq-codegen-3.13.0.xsd">
+
+    <jdbc>
+        <driver>org.postgresql.Driver</driver>
+        <url>jdbc:postgresql://127.0.0.1:5432/rpks</url>
+        <user>rpks_user</user>
+        <password>admin</password>
+    </jdbc>
+
+    <generator>
+        <name>org.jooq.codegen.JavaGenerator</name>
+
+        <database>
+            <name>org.jooq.meta.postgres.PostgresDatabase</name>
+            <inputSchema>public</inputSchema>
+            <includes>deduplication_rules</includes>
+        </database>
+
+        <target>
+            <packageName>ru.mai.lessons.rpks.jooq.model</packageName>
+            <directory>C:\Users\79832\IdeaProjects\RPKSLabs\JavaServiceDeduplication\src\main\java</directory>
+        </target>
+    </generator>
+</configuration>
