@@ -1,6 +1,8 @@
 package ru.mai.lessons.rpks.model;
 
+import lombok.Builder;
 
+@Builder
 public class Rule {
     private Long deduplicationId; // id сервиса дедубликации
     private Long ruleId; // id правила дедубликации
