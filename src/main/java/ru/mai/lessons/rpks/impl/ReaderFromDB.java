@@ -41,6 +41,7 @@ public class ReaderFromDB implements DbReader {
                         .isActive((Boolean) ruleInformation.get("is_active")).build();
                 log.debug("FIND_RULE:"+rules[currentRuleIndex].toString());
                 currentRuleIndex++;
+
             }
             log.debug("MAKE_RULES_FROM_DB");
             Arrays.sort(rules, Collections.reverseOrder());
