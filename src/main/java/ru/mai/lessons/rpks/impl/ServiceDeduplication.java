@@ -54,6 +54,7 @@ public class ServiceDeduplication implements Service {
             } catch (InterruptedException e) {
                 log.warn("CANT_SLEEP:"+e.getMessage());
                 Thread.currentThread().interrupt();
+                break;
             }
         }
         executorService.shutdown();
