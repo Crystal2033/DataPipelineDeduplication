@@ -37,6 +37,7 @@ public class JedisRuleProcessor implements RuleProcessor {
 
             if (checkMessage(map)) {
                 message.setDeduplicationState(false);
+                log.info(message.getValue() + "is duplicate;");
                 return message;
             }
 
@@ -63,7 +64,7 @@ public class JedisRuleProcessor implements RuleProcessor {
                 return message;
             }
 
-
+            log.info("new rule = " + newJson);
             message.setDeduplicationState(true);
             redisClient.insert(key, time);
             return message;
@@ -77,8 +78,8 @@ public class JedisRuleProcessor implements RuleProcessor {
 
     boolean checkMessage(Map<String, String> messageMap) throws JsonProcessingException {
         Set<String> keys;
-        if (redisClient.getKeys("*").isEmpty())
-            keys = redisClient.getKeys("*");
+        if (!redisClient.getKeys().isEmpty())
+            keys = redisClient.getKeys();
         else
             return false;
 
@@ -88,8 +89,8 @@ public class JedisRuleProcessor implements RuleProcessor {
             });
 
             boolean flag = true;
-            for (String it : map.keySet()) {
-                if (!Objects.equals(map.get(it), messageMap.get(it))) {
+            for (var it : map.entrySet()) {
+                if (!Objects.equals(it.getValue(), messageMap.get(it.getKey()))) {
                     flag = false;
                 }
             }

@@ -3,10 +3,8 @@ package ru.mai.lessons.rpks.impl;
 import com.typesafe.config.Config;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPooled;
 import ru.mai.lessons.rpks.RedisClient;
 
-import java.util.List;
 import java.util.Set;
 
 public class RedisClientRealization implements RedisClient {
@@ -27,7 +25,7 @@ public class RedisClientRealization implements RedisClient {
         jedis.expire(key, time);
     }
 
-    public Set<String> getKeys(String s) {
+    public Set<String> getKeys() {
         return jedis.keys("*");
     }
 }

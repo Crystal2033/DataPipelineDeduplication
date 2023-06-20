@@ -35,7 +35,7 @@ public class DataBaseReader implements DbReader {
 
     @Override
     public Rule[] readRulesFromDB() {
-        return dslContext.select().from("public.duplication_rules").fetchInto(Rule.class).toArray(Rule[]::new);
+        return dslContext.select().from("public.deduplication_rules").fetchInto(Rule.class).toArray(Rule[]::new);
     }
     public boolean connectToDataBase() throws SQLException {
         log.info("Init DSL");

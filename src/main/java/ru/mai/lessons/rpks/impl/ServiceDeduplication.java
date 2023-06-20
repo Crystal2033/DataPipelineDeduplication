@@ -1,7 +1,6 @@
 package ru.mai.lessons.rpks.impl;
 
 import com.typesafe.config.Config;
-import ru.mai.lessons.rpks.KafkaReader;
 import ru.mai.lessons.rpks.Service;
 import ru.mai.lessons.rpks.model.Rule;
 
