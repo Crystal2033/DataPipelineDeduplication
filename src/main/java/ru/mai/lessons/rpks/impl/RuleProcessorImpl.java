@@ -8,9 +8,7 @@ import ru.mai.lessons.rpks.RuleProcessor;
 import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.model.Rule;
 
-import java.util.Objects;
 import java.util.SortedMap;
-import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -19,27 +17,10 @@ public class RuleProcessorImpl implements RuleProcessor {
     ObjectMapper mapper = new ObjectMapper();
     RedisClient redisClient;
 
-    RuleProcessorImpl(RedisClient redisClient_){
-        redisClient = redisClient_;
+    RuleProcessorImpl(RedisClient redis){
+        redisClient = redis;
     }
 
-    boolean compare(String value, Rule rule){
-//        if (Objects.equals(rule.getFilterFunctionName(), "equals")
-//                && Objects.equals(value, rule.getFilterValue())) {
-//            return true;
-//        }
-//        else if (Objects.equals(rule.getFilterFunctionName(), "contains")
-//                && value.contains(rule.getFilterValue())) {
-//            return true;
-//        }
-//        else if (Objects.equals(rule.getFilterFunctionName(), "not_equals")
-//                && !Objects.equals(value, rule.getFilterValue())) {
-//            return true;
-//        }
-//        else return Objects.equals(rule.getFilterFunctionName(), "not_contains")
-//                    && !value.contains(rule.getFilterValue());
-        return true;
-    }
 
     @Override
     public Message processing(Message message, Rule[] rules) {
