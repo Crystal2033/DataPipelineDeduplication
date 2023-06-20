@@ -8,6 +8,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import ru.mai.lessons.rpks.DbReader;
 import ru.mai.lessons.rpks.KafkaReader;
+import ru.mai.lessons.rpks.RedisClient;
 import ru.mai.lessons.rpks.model.Message;
 import ru.mai.lessons.rpks.model.Rule;
 
@@ -58,7 +59,9 @@ public class KafkaReaderImpl implements KafkaReader {
         config.put("group.id", appConfig.getString("kafka.consumer.group.id"));
         config.put("auto.offset.reset", appConfig.getString("kafka.consumer.auto.offset.reset"));
 
-        var ruleProcessor = new RuleProcessorImpl();
+
+        RedisClient redisClient = new RedisClientImpl(appConfig);
+        var ruleProcessor = new RuleProcessorImpl(redisClient);
         try(KafkaConsumer<String, String> consumer = new KafkaConsumer<>(config)) {
             var producer = new KafkaWriterImpl(appConfig);
             log.info("connect to topic {}", appConfig.getString("kafka.consumer.topic"));

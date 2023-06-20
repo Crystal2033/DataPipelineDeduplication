@@ -29,7 +29,7 @@ public class DbReaderImpl implements DbReader {
         try {
             var con = ds.getConnection();
             DSLContext context = DSL.using(con, SQLDialect.POSTGRES);
-            return context.select().from("public.filter_rules").
+            return context.select().from("public.deduplication_rules").
                     fetch().
                     stream().
                     map(re ->Rule.builder().
