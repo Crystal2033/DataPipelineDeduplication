@@ -17,7 +17,7 @@ public class RedisClientImpl implements RedisClient {
 
     public void set(String key, String value) {
         try(Jedis myJedis = pool.getResource()) {
-            myJedis.set(key, value);
+            myJedis.set(key, "");
         }
     }
 
