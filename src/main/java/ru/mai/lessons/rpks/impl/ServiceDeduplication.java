@@ -22,7 +22,7 @@ public class ServiceDeduplication implements Service {
         log.debug("CONFIG:" + config.toString());
         AtomicBoolean isExit = new AtomicBoolean(false);
         ConcurrentLinkedQueue<Rule[]> rules = new ConcurrentLinkedQueue<>();
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
 
         ConsumerSettings consumerSettings = Settings.makeConsumerSettings(config);
         ProducerSettings producerSettings = Settings.makeProducerSettings(config);
@@ -34,8 +34,7 @@ public class ServiceDeduplication implements Service {
         ProcessorOfRule processorOfRule = ProcessorOfRule.builder().clientOfRedis(clientOfRedis).build();
 
         WriterToKafka writerToKafka = WriterToKafka.builder().producerSettings(producerSettings)
-                .rules(rules)
-                .processorOfRule(processorOfRule).build();
+                .rules(rules).processorOfRule(processorOfRule).build();
         ReaderFromKafka readerFromKafka = ReaderFromKafka.builder().consumerSettings(consumerSettings)
                 .isExit(isExit).writerToKafka(writerToKafka).build();
         executorService.submit(readerFromKafka::processing);

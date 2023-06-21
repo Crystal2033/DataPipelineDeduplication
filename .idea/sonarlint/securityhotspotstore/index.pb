@@ -21,3 +21,9 @@ b
 build.gradle,f\0\f07866736216be0ee2aba49e392191aeae700a35
 ;
 gradlew.bat,2\a\2a45a911a8f1836b0b6c5b758962572012d8f8c3
+o
+?src/main/java/ru/mai/lessons/rpks/impl/settings/DBSettings.java,5\a\5a49c55b294de00afaff745e9fee85b142f41e3f
+o
+?src/main/java/ru/mai/lessons/rpks/ServiceDeduplicationMain.java,9\0\90d1e20d305248362e062cba7de5f986d1ae56fc
+a
+1src/main/java/ru/mai/lessons/rpks/model/Rule.java,1\8\18062bf50ae937e2bc5df53c64b13687f1d60ab2
