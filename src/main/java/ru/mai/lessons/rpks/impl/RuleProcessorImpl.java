@@ -67,7 +67,7 @@ public class RuleProcessorImpl implements RuleProcessor {
                     .collect(Collectors.joining("*", "{", "}"));
 
             if (redisClient.findKey(joinedList)) {
-                log.info("duplex msg: rule: {}", joinedList);
+                log.debug("duplex msg: rule: {}", joinedList);
                 message.setDeduplicationState(false);
                 return message;
             }
@@ -77,7 +77,7 @@ public class RuleProcessorImpl implements RuleProcessor {
             return message;
 
         } catch (Exception e){
-            log.info("Json error :{}", e.toString());
+            log.error("Json error :{}", e.toString());
         }
 
         return message;

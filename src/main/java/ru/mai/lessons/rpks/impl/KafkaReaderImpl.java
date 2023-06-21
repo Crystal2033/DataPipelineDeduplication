@@ -42,7 +42,7 @@ public class KafkaReaderImpl implements KafkaReader {
 
         for (var r : rules)
         {
-            log.info(r.toString());
+            log.debug(r.toString());
         }
 
 
@@ -55,9 +55,9 @@ public class KafkaReaderImpl implements KafkaReader {
         Properties config = new Properties();
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        config.put("bootstrap.servers", appConfig.getString("kafka.consumer.bootstrap.servers"));
-        config.put("group.id", appConfig.getString("kafka.consumer.group.id"));
-        config.put("auto.offset.reset", appConfig.getString("kafka.consumer.auto.offset.reset"));
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, appConfig.getString("kafka.consumer.bootstrap.servers"));
+        config.put(ConsumerConfig.GROUP_ID_CONFIG, appConfig.getString("kafka.consumer.group.id"));
+        config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, appConfig.getString("kafka.consumer.auto.offset.reset"));
 
 
         RedisClient redisClient = new RedisClientImpl(appConfig);
@@ -70,17 +70,17 @@ public class KafkaReaderImpl implements KafkaReader {
             while (true) {
                 ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
                 for (var localRecord : records) {
-                    log.info("msg: {}", localRecord.value());
+                    log.debug("msg: {}", localRecord.value());
                     var msg = ruleProcessor.processing(new Message(localRecord.value(), false), rules);
                     if (msg.isDeduplicationState()) {
-                        log.info("try to send msg: {}", msg.getValue());
+                        log.debug("try to send msg: {}", msg.getValue());
                         producer.processing(msg);
                     }
                 }
             }
         }
         catch (Exception e) {
-            log.info("some kafka exc: {}", e.toString());
+            log.error("some kafka exc: {}", e.toString());
         }
     }
 }

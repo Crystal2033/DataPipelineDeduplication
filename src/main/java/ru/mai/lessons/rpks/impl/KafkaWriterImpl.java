@@ -1,6 +1,7 @@
 package ru.mai.lessons.rpks.impl;
 
 import com.typesafe.config.Config;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -15,7 +16,7 @@ public class KafkaWriterImpl implements KafkaWriter {
     String topic;
     public KafkaWriterImpl(Config appConfig){
         Properties config = new Properties();
-        config.put("bootstrap.servers", appConfig.getString("kafka.producer.bootstrap.servers"));
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, appConfig.getString("kafka.producer.bootstrap.servers"));
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         topic = appConfig.getString("kafka.producer.topic");
