@@ -16,10 +16,11 @@ public class ClientOfRedis implements RedisClient {
     private JedisPooled jedis;
 
     public void writeData(String key) {
-        getJedis().set(key,"");
+        getJedis().set(key, "");
         log.debug("WRITE_DATE_TO_REDIS: {}", key);
     }
-    public  boolean isKeyInRedis(String findKey){
+
+    public boolean isKeyInRedis(String findKey) {
         return getJedis().exists(findKey);
     }
 
@@ -28,6 +29,7 @@ public class ClientOfRedis implements RedisClient {
         log.debug("SET_TIME_TO_LIVE {} SECONDS_BY_KEY {}", seconds, key);
 
     }
+
     private JedisPooled getJedis() {
         return Optional.ofNullable(jedis).orElse(new JedisPooled(redisSettings.getHost(), redisSettings.getPort()));
     }
