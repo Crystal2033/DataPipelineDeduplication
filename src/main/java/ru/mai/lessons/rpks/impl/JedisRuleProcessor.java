@@ -96,6 +96,9 @@ public class JedisRuleProcessor implements RuleProcessor {
                     flag = false;
                 }
             }
+
+            if (flag)
+                return true;
         }
 
         return flag;
