@@ -163,6 +163,7 @@ class ServiceTest {
     void testPostgreSQLReadValues() {
         clearTable();
         createAndCheckRuleInPostgreSQL(0L, 0L, "test_field", 10L, true);
+        log.debug("sdfsdfsdfsdf");
     }
 
     /**
@@ -197,6 +198,8 @@ class ServiceTest {
             Config config = ConfigFactory.load();
             config = replaceConfigForTest(config);
             Future<Boolean> serviceIsWork = testStartService(config);
+            log.info("testStartService started");
+            log.debug("testStartService started");
 
             String expectedJsonOne = "{\"name\":\"alex\", \"age\":18, \"sex\":\"M\"}";
             String expectedJsonTwo = "{\"name\":\"no_alex\", \"age\":18, \"sex\":\"M\"}";
@@ -261,7 +264,7 @@ class ServiceTest {
     }
 
     /**
-     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = true И
+
      * fieldName = 'age', timeToLiveSec = 10, isActive = true
      * Выполняется вставка правила в базу PostgreSQL.
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
@@ -374,7 +377,6 @@ class ServiceTest {
     }
 
     /**
-     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = true И
      * fieldName = 'age', timeToLiveSec = 10, isActive = false
      * Выполняется вставка правил в базу PostgreSQL.
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
@@ -554,7 +556,6 @@ class ServiceTest {
     }
 
     /**
-     * Тест проверяет следующее правила дедубликации: fieldName = 'name', timeToLiveSec = 5, isActive = false И
      * fieldName = 'age', timeToLiveSec = 10, isActive = false
      * Выполняется вставка правила в базу PostgreSQL.
      * Запускается приложение с тестовыми конфигурациями в test/resources/application.conf.
