@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.DSLContext;
+import org.jooq.Package;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 import ru.mai.lessons.rpks.DbReader;
@@ -26,7 +27,7 @@ public class DataBaseReader implements DbReader {
         hikariConfig.setPassword(config.getString("db.password"));
         hikariConfig.setDriverClassName(config.getString("db.driver"));
 
-        log.info("Init HikariDataSource");
+        log.debug("Init HikariDataSource");
         hikariDataSource = new HikariDataSource(hikariConfig);
     }
 
@@ -52,12 +53,12 @@ public class DataBaseReader implements DbReader {
     }
 
     public boolean isConnected() throws SQLException {
-        return getConnection().isValid(0);
+        if (getConnection() == null) {
+            return false;
+        }
+        else {
+            return getConnection().isValid(0);
+        }
     }
 
-    public void close(){
-        log.info("Close connection");
-        if (hikariDataSource != null)
-            hikariDataSource.close();
-    }
 }

@@ -37,12 +37,12 @@ public class JedisRuleProcessor implements RuleProcessor {
 
             if (checkMessage(map)) {
                 message.setDeduplicationState(false);
-                log.info(message.getValue() + "is duplicate;");
+                log.debug(message.getValue() + "is duplicate;");
                 return message;
             }
 
             for (Rule rule : rules) {
-                if (Boolean.TRUE.equals(rule.getIsActive())) {
+                if (rule.getIsActive()) {
                     newRule.add(rule.getFieldName());
                     if (rule.getTimeToLiveSec() > time)
                         time = rule.getTimeToLiveSec();
@@ -64,13 +64,13 @@ public class JedisRuleProcessor implements RuleProcessor {
                 return message;
             }
 
-            log.info("new rule = " + newJson);
+            log.debug("new rule = " + newJson);
             message.setDeduplicationState(true);
             redisClient.insert(key, time);
             return message;
         }
         catch (JsonProcessingException e) {
-            log.info("Message {} have uncorrected data", message.getValue());
+            log.error("Message {} have uncorrected data", message.getValue());
             message.setDeduplicationState(false);
             return message;
         }
@@ -83,22 +83,22 @@ public class JedisRuleProcessor implements RuleProcessor {
         else
             return false;
 
+        boolean flag = true;
+
         for (String key : keys) {
             Map<String, String> map;
             map = mapper.readValue(key, new TypeReference<Map<String, String>>() {
             });
 
-            boolean flag = true;
+            flag = true;
             for (var it : map.entrySet()) {
                 if (!Objects.equals(it.getValue(), messageMap.get(it.getKey()))) {
                     flag = false;
                 }
             }
-
-            if (Boolean.TRUE.equals(flag))
-                return true;
         }
-        return false;
+
+        return flag;
     }
 
     public void createRedisClient(Config config) {

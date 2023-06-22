@@ -35,12 +35,11 @@ public class RulesUpdater implements Runnable{
             reader = new DataBaseReader(config);
         }
         catch (Exception e) {
-            String str = e.toString();
-            log.info(str);
+            log.error(e.getMessage());
         }
 
         if (!reader.connectToDataBase()) {
-            // throw exception
+            log.error("Cannot create dsl context");
         }
     }
 }

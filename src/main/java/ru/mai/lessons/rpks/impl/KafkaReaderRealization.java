@@ -42,26 +42,23 @@ public class KafkaReaderRealization implements KafkaReader {
         } catch (SQLException e) {
             log.error("Cannot run scheduler");
         }
-        Object locker = rulesScheduler.getChecker().getLock().getClass();
 
         log.info("Start consumer cycle");
         while (true) {
             ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(500));
-            log.info("next poll ---");
-            synchronized (locker) {
+            log.debug("next poll ---");
                 ruleList = rulesScheduler.getRules();
 
                 for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
                     Message curMessage = Message.builder().value(consumerRecord.value()).build();
-                    log.info("get message" + curMessage.getValue());
+                    log.debug("get message" + curMessage.getValue());
                     if (ruleProcessor.processing(curMessage, ruleList.toArray(Rule[]::new)).isDeduplicationState()) {
-                        log.info("Message " + curMessage.getValue() + " satisfies rules");
+                        log.debug("Message " + curMessage.getValue() + " satisfies rules");
                         kafkaWriter.processing(curMessage);
                     } else {
-                        log.info("Message " + curMessage.getValue() + " does not satisfies current rules");
-                    }
-                }
-            }
+                        log.debug("Message " + curMessage.getValue() + " does not satisfies current rules");
+                    }}
+
         }
     }
 
