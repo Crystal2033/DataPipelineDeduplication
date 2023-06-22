@@ -27,12 +27,14 @@ dependencies {
     implementation 'org.postgresql:postgresql:42.5.4'
     implementation 'com.zaxxer:HikariCP:5.0.1'
     implementation 'org.jooq:jooq:3.17.8'
+    implementation 'org.jooq:jooq-codegen:3.18.0'
 
     // redis
     implementation 'redis.clients:jedis:4.3.1'
 
     // json
     implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.1'
 
     // test
     testImplementation 'org.testcontainers:testcontainers:1.17.6'
