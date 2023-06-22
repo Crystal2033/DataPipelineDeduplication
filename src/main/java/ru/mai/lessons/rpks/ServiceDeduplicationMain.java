@@ -10,7 +10,7 @@ public class ServiceDeduplicationMain {
         log.info("Start service Deduplication");
         ConfigReader configReader = new ConfigurationReader();
         Service service = new ServiceDeduplication(); // ваша реализация service
+        log.info("Start service Deduplication");
         service.start(configReader.loadConfig());
-        log.info("Terminate service Deduplication");
     }
 }
